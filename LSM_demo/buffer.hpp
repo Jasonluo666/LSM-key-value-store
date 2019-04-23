@@ -62,7 +62,7 @@ public :
 
     vector<KV_pair> range(Key k1, Key k2){
         vector<KV_pair> kv_pairs;
-		if (k1 < MAX || k2 > MIN) {
+		if (k1 <= MAX && k2 >= MIN) {
 			for (int i = 0; i < elem_num; i++) {
 				if (KV_pairs[i].key >= k1 && KV_pairs[i].key <= k2) {
 					kv_pairs.push_back(KV_pairs[i]);

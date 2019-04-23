@@ -5,6 +5,15 @@ struct Pair {
 	K key;
 	V value;
 
+	Pair() {
+
+	}
+
+	Pair(K key, V value) {
+		this->key = key;
+		this->value = value;
+	}
+
 	bool operator == (Pair kv) const {
 		return kv.key == key and kv.value == value;
 	}
@@ -20,17 +29,13 @@ struct Pair {
 
 template <typename K, typename V>
 class Run {
-	Run() {
-
-	}
-
+	typedef KV_pair Pair<K, V>;
+	virtual void merge() = 0;
 public:
-	virtual void insert(Pair kv) = 0;
+	Run();
+	virtual void insert(KV_pair kv) = 0;
 	virtual void lookup(K key) = 0;
 	virtual void rangeSearch(K key_min, K key_max) = 0;
 	virtual void deleteKey(K key) = 0;
-
-private:
-	virtual void merge() = 0;
 };
 
