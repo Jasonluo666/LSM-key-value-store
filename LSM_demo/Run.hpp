@@ -7,7 +7,7 @@ template <typename K, typename V>
 struct Pair {
 	K key;
 	V value;
-
+  
 	bool operator == (Pair kv) const {
 		return kv.key == key and kv.value == value;
 	}
@@ -23,7 +23,6 @@ struct Pair {
 
 template <typename K, typename V>
 class Run {
-
 public:
     Run() {
 

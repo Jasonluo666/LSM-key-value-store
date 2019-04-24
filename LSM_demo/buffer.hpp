@@ -25,7 +25,6 @@ public :
         }
 
 		// update value
-		/* problem: maintain (min, max) */
         for(i = 0; i < elem_num; i++){
             if(KV_pairs[i].key == kv_pair.key){
                 KV_pairs[i].value = kv_pair.value;
@@ -63,15 +62,14 @@ public :
 
     vector<KV_pair> range(Key k1, Key k2){
         vector<KV_pair> kv_pairs;
-        if(k1 < MIN && k2 > MAX){
-            return kv_pairs;
-        }
-        for(int i = 0; i < elem_num; i++){
-            if(KV_pairs[i].key >= k1 && KV_pairs[i].key <= k2){
-                kv_pairs.push_back(KV_pairs[i]);
-            }
-        }
-        sort(kv_pairs.begin(),kv_pairs.end());
+		if (k1 <= MAX && k2 >= MIN) {
+			for (int i = 0; i < elem_num; i++) {
+				if (KV_pairs[i].key >= k1 && KV_pairs[i].key <= k2) {
+					kv_pairs.push_back(KV_pairs[i]);
+				}
+			}
+			sort(kv_pairs.begin(), kv_pairs.end());
+		}
 
 		/* range query -> disk */
 		/* problem: tracking the most recent values */
@@ -84,7 +82,7 @@ public :
 		// delete in buffer
         for(int i = 0; i < elem_num; i++){
             if(KV_pairs[i].key == kv_pair.key){
-                KV_pairs.erase(i);
+                KV_pairs.erase(KV_pairs.begin() + i);
                 elem_num -=1;
 				break;
             }

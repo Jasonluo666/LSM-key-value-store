@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Run.h"
 #include <vector>
 #include <iostream>
@@ -38,25 +37,40 @@ string to_String(int n)
 
 template<typename K, typename V>
 class DiskRun : Run<K, V> {
-    typedef Pair<K,V> KV_pair;
+	typedef Pair<K, V> KV_pair;
+  int capacity;
+  int entries_in_page;
+  int level;
+  int run_No;
+  int entries_num;
+	int page_num;
+	int page_size;
+  bool doExist;
+	K* fence_pointer;
+  K MIN;
+	K MAX;
+	string dir;
+	
 public:
-    DiskRun(){
-    }
+	DiskRun() {
 
-	DiskRun(int capacity, int pagesize, int level, int run_No){
+	}
+
+  DiskRun(int capacity, int pagesize, int level, int run_No){
 	    MIN = 0;
 	    MAX = 0;
 	    dir = "./data/LSM_L"+to_String(level)+"_R"+to_String(run_No)+".run";
 	    this->capacity = capacity;
-	    this->pagesize = pagesize;
+	    this->page_size = pagesize;
 	    this->level = level;
 	    this->run_No = run_No;
 	}
 
-	void insert(KV_pair kv){
-	}
+	void insert(KV_pair kv) {
 
-	KV_pair* lookup(K key){
+	}
+  
+  KV_pair* lookup(K key){
 	    int i;
 	    KV_pair *aPair = new KV_pair;
 	    if(key >= MIN && key <= MAX)
@@ -76,15 +90,72 @@ public:
 	    return NULL;
 	}
 
-	vector<KV_pair> rangeSearch(K key_min, K key_max){
-	    vector<KV_pair> kv_pairs;
-	    return kv_pairs;
-	}
+	vector<KV_pair> rangeSearch(K key_min, K key_max) {
+		vector<KV_pair> kv_pairs;
+		fstream run;
+		K buffer_key;
+		V buffer_value;
 
-	void deleteKey(K key){
-	}
+		if (key_min <= MAX && key_max >= fence_pointer[0]) {
+			run.open(dir.c_str(), ios::in | ios::binary);
 
-	vector<KV_pair> load(){
+			for (int page_index; page_index < page_num; page_index++) {
+				if (key_min <= fence_pointer[page_index + 1] && key_max >= fence_pointer[page_index]) {
+					// read page [index * page_size, index * page_size + page_size]
+					
+					// switch the read pointer
+					streampos current_pos = index * page_size;
+					run.seekg(current_pos);
+					while(current_pos + sizeof(K) + sizeof(V) <= index * page_size + page_size){
+						// read K, V value
+						run.read((char*)&buffer_key, sizeof(K));
+						run.read((char*)&buffer_value, sizeof(V));
+						
+						// fetch valid data
+						if (buffer_key >= key_min && buffer_key <= key_max) {
+							KV_pair new_pair(buffer_key, buffer_value);
+							kv_pairs.push_back(new_pair);
+						}
+
+						current_pos = run.tellg()
+					}
+
+				}
+			}
+
+			if (key_min <= MAX && key_max >= fence_pointer[page_num]) {
+				// read page [page_num * page_size, page_num * page_size + page_size]
+				// get the tail position
+				myfile.seekg(0, ios::end);
+				int tail = run.tellg();
+
+				// switch the read pointer
+				streampos current_pos = page_num * page_size;
+				run.seekg(current_pos);
+				while (current_pos + sizeof(K) + sizeof(V) <= tail) {
+					// read K, V value
+					run.read((char*)&buffer_key, sizeof(K));
+					run.read((char*)&buffer_value, sizeof(V));
+
+					// fetch valid data
+					if (buffer_key >= key_min && buffer_key <= key_max) {
+						KV_pair new_pair(buffer_key, buffer_value);
+						kv_pairs.push_back(new_pair);
+					}
+
+					current_pos = run.tellg()
+				}
+			}
+		}
+
+		return kv_pairs;
+	};
+
+	void deleteKey(K key) {
+
+	}
+  
+  vector<KV_pair> load(){
 	    vector<KV_pair> kv_pairs;
 	    KV_pair aPair;
 	    fstream file(dir.c_str(),ios::in||ios::binary);
@@ -159,17 +230,4 @@ public:
         file.close();
     }
 
-private:
-    int capacity;
-    int pagesize;
-    int elem_in_page;
-    int level;
-    int run_No;
-    int elem_num;
-    int page_No;
-    bool doExist;
-    K MIN;
-    K MAX;
-    K* fencepointer;
-    string dir;
 };
