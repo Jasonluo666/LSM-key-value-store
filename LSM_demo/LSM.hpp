@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Run.h"
+#include "buffer.hpp"
 #include "DiskRun.h"
 #include "Vector"
 
