@@ -23,14 +23,18 @@ public :
             MIN = kv_pair.key;
             MAX = kv_pair.key;
         }
+
+		// update value
+		/* problem: maintain (min, max) */
         for(i = 0; i < elem_num; i++){
             if(KV_pairs[i].key == kv_pair.key){
                 KV_pairs[i].value = kv_pair.value;
+				return;
             }
         }
-        if(i == elem_num){
-            KV_pairs.push_back(kv_pair);
-        }
+
+		// otherwise, insert new kv pair
+        KV_pairs.push_back(kv_pair);
         if(kv_pair.key < MIN){
             MIN = kv_pair.key;
         }
@@ -38,19 +42,23 @@ public :
             MAX = kv_pair.key;
         }
         elem_num++;
+
+		// push into disk while full
+		if (elem_num == capacity) {
+			/* merge to disk */
+		}
     }
 
     KV_pair* lookup(Key key){
-        if(key < MIN && key > MAX){
-            return NULL;
-        }
-        for(int i = 0; i < elem_num; i++){
-            if(KV_pairs[i].key == key){
-                return &KV_pairs[i];
-            }
-        }
+		if (key >= MIN && key <= MAX) {	// skip if out of range
+			for (int i = 0; i < elem_num; i++) {
+				if (KV_pairs[i].key == key) {
+					return &KV_pairs[i];
+				}
+			}
+		}
+		/* disk_lookup */
         return NULL;
-        //disk_lookup
     }
 
     vector<KV_pair> range(Key k1, Key k2){
@@ -64,19 +72,26 @@ public :
             }
         }
         sort(kv_pairs.begin(),kv_pairs.end());
+
+		/* range query -> disk */
+		/* problem: tracking the most recent values */
         //sort(disk_range())
         //merge();
         return kv_pairs;
     }
 
     void _delete(KV_pair kv_pair){
+		// delete in buffer
         for(int i = 0; i < elem_num; i++){
             if(KV_pairs[i].key == kv_pair.key){
                 KV_pairs.erase(i);
                 elem_num -=1;
-                break;
+				break;
             }
         }
+
+		/* delete -> disk */
+		/* problem: delete all "kv_pair" in disk */
     }
 
     bool isfull(){
