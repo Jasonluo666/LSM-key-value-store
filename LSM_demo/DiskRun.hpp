@@ -1,5 +1,5 @@
 #pragma once
-#include "Run.h"
+#include "Run.hpp"
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -37,26 +37,29 @@ string to_String(int n)
 
 template<typename K, typename V>
 class DiskRun : Run<K, V> {
-	typedef Pair<K, V> KV_pair;
-  int capacity;
-  int entries_in_page;
-  int level;
-  int run_No;
-  int entries_num;
+    typedef Pair<K, V> KV_pair;
+    int capacity;
+    int entries_in_page;
+    int level;
+    int run_No;
+    int entries_num;
 	int page_num;
 	int page_size;
-  bool doExist;
+	bool doExist;
 	K* fence_pointer;
-  K MIN;
+	K MIN;
 	K MAX;
 	string dir;
-	
+
+	void merge(){
+	}
+
 public:
 	DiskRun() {
 
 	}
 
-  DiskRun(int capacity, int pagesize, int level, int run_No){
+	DiskRun(int capacity, int pagesize, int level, int run_No){
 	    MIN = 0;
 	    MAX = 0;
 	    dir = "./data/LSM_L"+to_String(level)+"_R"+to_String(run_No)+".run";
@@ -64,21 +67,24 @@ public:
 	    this->page_size = pagesize;
 	    this->level = level;
 	    this->run_No = run_No;
+	    initialized = true;
+	    doExist = false;
 	}
 
 	void insert(KV_pair kv) {
 
 	}
-  
-  KV_pair* lookup(K key){
+
+	KV_pair* lookup(K key){
 	    int i;
 	    KV_pair *aPair = new KV_pair;
 	    if(key >= MIN && key <= MAX)
-	    for(i=0; i<page_No-1; i++){
-	        if(key >= fencepointer[i] && key < fencepointer[i+1]){
-                break;
+	    for(i=0; i<page_num; i++){
+	        if( (i==page_num-1 && key >= fence_pointer[i] && key <= MAX) || (key >= fence_pointer[i] && key < fence_pointer[i+1] )){
+	            break;
             }
 	    }
+	    if(i==page_num)return NULL;
 	    vector<KV_pair> KV_pairs(this->load(i));
 	    for(i=0;i<(int)KV_pairs.size();i++){
             if(KV_pairs[i].key == key){
@@ -99,25 +105,25 @@ public:
 		if (key_min <= MAX && key_max >= fence_pointer[0]) {
 			run.open(dir.c_str(), ios::in | ios::binary);
 
-			for (int page_index; page_index < page_num; page_index++) {
+			for (int page_index = 0; page_index < page_num; page_index++) {
 				if (key_min <= fence_pointer[page_index + 1] && key_max >= fence_pointer[page_index]) {
 					// read page [index * page_size, index * page_size + page_size]
-					
+
 					// switch the read pointer
-					streampos current_pos = index * page_size;
+					streampos current_pos = page_index * page_size;
 					run.seekg(current_pos);
-					while(current_pos + sizeof(K) + sizeof(V) <= index * page_size + page_size){
+					while(current_pos + sizeof(K) + sizeof(V) <= page_index * page_size + page_size){
 						// read K, V value
 						run.read((char*)&buffer_key, sizeof(K));
 						run.read((char*)&buffer_value, sizeof(V));
-						
+
 						// fetch valid data
 						if (buffer_key >= key_min && buffer_key <= key_max) {
 							KV_pair new_pair(buffer_key, buffer_value);
 							kv_pairs.push_back(new_pair);
 						}
 
-						current_pos = run.tellg()
+						current_pos = run.tellg();
 					}
 
 				}
@@ -126,7 +132,7 @@ public:
 			if (key_min <= MAX && key_max >= fence_pointer[page_num]) {
 				// read page [page_num * page_size, page_num * page_size + page_size]
 				// get the tail position
-				myfile.seekg(0, ios::end);
+				run.seekg(0, ios::end);
 				int tail = run.tellg();
 
 				// switch the read pointer
@@ -143,7 +149,7 @@ public:
 						kv_pairs.push_back(new_pair);
 					}
 
-					current_pos = run.tellg()
+					current_pos = run.tellg();
 				}
 			}
 		}
@@ -154,8 +160,8 @@ public:
 	void deleteKey(K key) {
 
 	}
-  
-  vector<KV_pair> load(){
+
+	vector<KV_pair> load(){
 	    vector<KV_pair> kv_pairs;
 	    KV_pair aPair;
 	    fstream file(dir.c_str(),ios::in||ios::binary);
@@ -177,11 +183,12 @@ public:
 	    if(!file.is_open()){
             cout<<"Cannot load\n";
 	    }
-	    for(i=0;file.read((char *) &aPair, sizeof(KV_pair));i++){
-	        if(i >= page_i*elem_in_page && i < (page_i+1)*elem_in_page){
+	    file.seekg(page_i*page_size,ios::beg);
+	    for(i=page_i*entries_in_page;file.read((char *) &aPair, sizeof(KV_pair));i++){
+	        if(i >= page_i*entries_in_page && i < (page_i+1)*entries_in_page){
 	            kv_pairs.push_back(aPair);
 	        }
-	        if(i >= (page_i+1)*elem_in_page){
+	        if(i >= (page_i+1)*entries_in_page){
                 break;
 	        }
 	    }
@@ -190,11 +197,11 @@ public:
 	}
 
 	void empty(){
-	    elem_num = 0;
+	    entries_num = 0;
 	    doExist = false;
 	    MIN = 0;
 	    MAX = 0;
-	    delete fencepointer;
+	    delete fence_pointer;
 	}
 
 	bool exist(){
@@ -207,26 +214,23 @@ public:
             cout<<"Cannot Open File\n";
             return;
 	    }
-	    page_No = (capacity * sizeof(KV_pair) / pagesize) +1;
-	    fencepointer = new K[page_No];
-	    elem_in_page = pagesize / sizeof(KV_pair);
+	    entries_num = KV_pairs.size();
+	    if(entries_num > capacity){
+            cout<<"Out of run capacity"<<endl;
+            return;
+	    }
+        page_num = (entries_num * sizeof(KV_pair) / page_size);
+	    if(entries_num*sizeof(KV_pair)%page_size > 0)page_num++;
+	    fence_pointer = new K[page_num];
+	    entries_in_page = page_size / sizeof(KV_pair);
+	    MIN = KV_pairs[0].key;
+	    MAX = KV_pairs[KV_pairs.size()-1].key;
 	    for(int i = 0; i < (int)KV_pairs.size(); i++){
-            if(i==0){
-                MIN = KV_pairs[i].key;
-                MAX = KV_pairs[i].key;
-            }
-            else if(KV_pairs[i].key<MIN){
-                MIN = KV_pairs[i].key;
-            }
-            else if(KV_pairs[i].key>MAX){
-                MAX = KV_pairs[i].key;
-            }
-            if(i%elem_in_page==0){
-                fencepointer[i/elem_in_page] = KV_pairs[i].key;
+            if(i%entries_in_page==0){
+                fence_pointer[i/entries_in_page] = KV_pairs[i].key;
             }
             file.write((char *) &KV_pairs[i], sizeof(KV_pair));
         }
-        elem_num = KV_pairs.size();
         file.close();
     }
 

@@ -1,14 +1,18 @@
 #ifndef _Buffer
 #define _Buffer
 #include <vector>
+#define TOMBSTONE INT_MIN;
 
 using namespace std;
 
 template<typename Key,typename Value>
 class Buffer{
+
+    Value DELETED = (Value) TOMBSTONE;
+
 public :
 
-    typedef Pair<Key,Value> KV_pair
+    typedef Pair<Key,Value> KV_pair;
 
     Buffer(int capacity){
         this.capacity = capacity;
@@ -54,6 +58,9 @@ public :
 				if (KV_pairs[i].key == key) {
 					return &KV_pairs[i];
 				}
+				else if(KV_pairs[i].value != DELETED){
+                    return NULL;
+				}
 			}
 		}
 		/* disk_lookup */
@@ -64,7 +71,7 @@ public :
         vector<KV_pair> kv_pairs;
 		if (k1 <= MAX && k2 >= MIN) {
 			for (int i = 0; i < elem_num; i++) {
-				if (KV_pairs[i].key >= k1 && KV_pairs[i].key <= k2) {
+				if (KV_pairs[i].key >= k1 && KV_pairs[i].key <= k2 && KV_pairs[i].value != DELETED) {
 					kv_pairs.push_back(KV_pairs[i]);
 				}
 			}
@@ -80,14 +87,18 @@ public :
 
     void _delete(KV_pair kv_pair){
 		// delete in buffer
-        for(int i = 0; i < elem_num; i++){
+		int i;
+		KV_pair aPair = {kv_pair.key,DELETED};
+        for(i = 0; i < elem_num; i++){
             if(KV_pairs[i].key == kv_pair.key){
                 KV_pairs.erase(KV_pairs.begin() + i);
                 elem_num -=1;
 				break;
             }
         }
-
+        if(i==elem_num){
+            insert(aPair);
+        }
 		/* delete -> disk */
 		/* problem: delete all "kv_pair" in disk */
     }

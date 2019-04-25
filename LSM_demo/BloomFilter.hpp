@@ -2,6 +2,8 @@
 #include "iostream"
 #include "vector"
 #include <unordered_map>
+#include <cmath>
+
 using namespace std;
 
 template<typename K>
@@ -23,7 +25,7 @@ public:
 		size_t current_hash = hash_func1(key);
 
 		for (int n = 0; n < n_hash; n++) {
-			m_bits[current_hash % size] = true;
+			filter[current_hash % size] = true;
 			current_hash = hash_func2(current_hash);
 		}
 	}
@@ -32,12 +34,12 @@ public:
 		size_t current_hash = hash_func1(key);
 
 		for (int n = 0; n < n_hash; n++) {
-			if (m_bits[current_hash % size] != true)
+			if (filter[current_hash % size] != true)
 				return false;
 
 			current_hash = hash_func2(current_hash);
 		}
-				
+
 		return true;
 	}
 };
