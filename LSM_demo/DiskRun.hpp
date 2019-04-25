@@ -51,6 +51,8 @@ class DiskRun : Run<K, V> {
 	K MAX;
 	string dir;
 
+	bool initialized;
+
 	void merge(){
 	}
 
@@ -105,14 +107,14 @@ public:
 		if (key_min <= MAX && key_max >= fence_pointer[0]) {
 			run.open(dir.c_str(), ios::in | ios::binary);
 
-			for (int page_index = 0; page_index < page_num; page_index++) {
+			for (int page_index = 0; page_index < page_num - 1; page_index++) {
 				if (key_min <= fence_pointer[page_index + 1] && key_max >= fence_pointer[page_index]) {
 					// read page [index * page_size, index * page_size + page_size]
-
+					cout << fence_pointer[page_index];
 					// switch the read pointer
 					streampos current_pos = page_index * page_size;
 					run.seekg(current_pos);
-					while(current_pos + sizeof(K) + sizeof(V) <= page_index * page_size + page_size){
+					while((int) current_pos + sizeof(K) + sizeof(V) <= page_index * page_size + page_size){
 						// read K, V value
 						run.read((char*)&buffer_key, sizeof(K));
 						run.read((char*)&buffer_value, sizeof(V));
@@ -129,7 +131,7 @@ public:
 				}
 			}
 
-			if (key_min <= MAX && key_max >= fence_pointer[page_num]) {
+			if (key_min <= MAX && key_max >= fence_pointer[page_num - 1]) {
 				// read page [page_num * page_size, page_num * page_size + page_size]
 				// get the tail position
 				run.seekg(0, ios::end);
@@ -138,7 +140,7 @@ public:
 				// switch the read pointer
 				streampos current_pos = page_num * page_size;
 				run.seekg(current_pos);
-				while (current_pos + sizeof(K) + sizeof(V) <= tail) {
+				while ((int) current_pos + sizeof(K) + sizeof(V) <= tail) {
 					// read K, V value
 					run.read((char*)&buffer_key, sizeof(K));
 					run.read((char*)&buffer_value, sizeof(V));
