@@ -7,7 +7,15 @@ template <typename K, typename V>
 struct Pair {
 	K key;
 	V value;
-  
+
+	Pair() {
+	}
+
+	Pair(K key, V value) {
+	    this->key = key;
+	    this->value = value;
+	}
+
 	bool operator == (Pair kv) const {
 		return kv.key == key and kv.value == value;
 	}
