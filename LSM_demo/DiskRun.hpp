@@ -53,7 +53,7 @@ public:
 							kv_pairs.push_back(new_pair);
 						}
 
-						current_pos = run.tellg()
+						current_pos = run.tellg();
 					}
 
 				}
@@ -79,7 +79,7 @@ public:
 						kv_pairs.push_back(new_pair);
 					}
 
-					current_pos = run.tellg()
+					current_pos = run.tellg();
 				}
 			}
 		}

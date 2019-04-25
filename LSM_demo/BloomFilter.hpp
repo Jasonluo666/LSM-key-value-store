@@ -23,7 +23,7 @@ public:
 		size_t current_hash = hash_func1(key);
 
 		for (int n = 0; n < n_hash; n++) {
-			m_bits[current_hash % size] = true;
+			filter[current_hash % size] = true;
 			current_hash = hash_func2(current_hash);
 		}
 	}
