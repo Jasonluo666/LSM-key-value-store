@@ -37,7 +37,6 @@ string to_String(int n)
 
 template<typename K, typename V>
 class DiskRun : Run<K, V> {
-<<<<<<< HEAD
     typedef Pair<K, V> KV_pair;
     int capacity;
     int entries_in_page;
@@ -51,21 +50,6 @@ class DiskRun : Run<K, V> {
     K MIN;
     K MAX;
     string dir;
-=======
-  typedef Pair<K, V> KV_pair;
-  int capacity;
-  int entries_in_page;
-  int level;
-  int run_No;
-  int entries_num;
-	int page_num;
-	int page_size;
-	bool doExist;
-	K* fence_pointer;
-	K MIN;
-	K MAX;
-	string dir;
->>>>>>> 43074dd44720f548d8045c6ad7fdd22f86aa0e90
 
 public:
 	DiskRun() {
