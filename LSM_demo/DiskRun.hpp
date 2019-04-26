@@ -43,13 +43,13 @@ class DiskRun : Run<K, V> {
     int level;
     int run_No;
     int entries_num;
-	int page_num;
-	int page_size;
-	bool doExist;
-	K* fence_pointer;
-	K MIN;
-	K MAX;
-	string dir;
+    int page_num;
+    int page_size;
+    bool doExist;
+    K* fence_pointer;
+    K MIN;
+    K MAX;
+    string dir;
 
 public:
 	DiskRun() {
