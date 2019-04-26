@@ -1,7 +1,7 @@
 #ifndef _Buffer
 #define _Buffer
 #include <vector>
-#define TOMBSTONE INT_MIN;
+#define TOMBSTONE INT_MIN
 
 using namespace std;
 
@@ -15,7 +15,7 @@ public :
     typedef Pair<Key,Value> KV_pair;
 
     Buffer(int capacity){
-        this.capacity = capacity;
+        this->capacity = capacity;
         elem_num = 0;
         MIN = 0;
         MAX = 0;

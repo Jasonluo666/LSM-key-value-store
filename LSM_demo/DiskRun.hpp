@@ -37,12 +37,12 @@ string to_String(int n)
 
 template<typename K, typename V>
 class DiskRun : Run<K, V> {
-    typedef Pair<K, V> KV_pair;
-    int capacity;
-    int entries_in_page;
-    int level;
-    int run_No;
-    int entries_num;
+  typedef Pair<K, V> KV_pair;
+  int capacity;
+  int entries_in_page;
+  int level;
+  int run_No;
+  int entries_num;
 	int page_num;
 	int page_size;
 	bool doExist;
@@ -50,11 +50,6 @@ class DiskRun : Run<K, V> {
 	K MIN;
 	K MAX;
 	string dir;
-
-	bool initialized;
-
-	void merge(){
-	}
 
 public:
 	DiskRun() {
@@ -69,12 +64,19 @@ public:
 	    this->page_size = pagesize;
 	    this->level = level;
 	    this->run_No = run_No;
-	    initialized = true;
 	    doExist = false;
 	}
 
 	void insert(KV_pair kv) {
 
+	}
+
+	bool overlimit(){
+	    return entries_num >= capacity;
+	}
+
+	bool overlimit(int n){
+	    return entries_num + n >= capacity;
 	}
 
 	KV_pair* lookup(K key){
@@ -206,6 +208,19 @@ public:
 	    delete fence_pointer;
 	}
 
+	int get_entries_num(){
+	    return this->entries_num;
+	}
+
+	void remove(){
+	    entries_num = 0;
+	    doExist = false;
+	    MIN = 0;
+	    MAX = 0;
+	    delete fence_pointer;
+	    remove(dir.c_str());
+	}
+
 	bool exist(){
 	    return doExist;
 	}
@@ -234,6 +249,11 @@ public:
             file.write((char *) &KV_pairs[i], sizeof(KV_pair));
         }
         file.close();
+    }
+
+    void merge(){
+        string newdir = "./data/LSM_L"+to_String(level+1)+"_R"+to_String(run_No)+".run";
+        rename(dir.c_str(),newdir.c_str());
     }
 
 };
