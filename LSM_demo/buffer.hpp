@@ -1,6 +1,7 @@
 #ifndef _Buffer
 #define _Buffer
 #include <vector>
+#include <algorithm>
 #define TOMBSTONE INT_MIN
 
 using namespace std;
@@ -56,10 +57,8 @@ public :
 		if (key >= MIN && key <= MAX) {	// skip if out of range
 			for (int i = 0; i < elem_num; i++) {
 				if (KV_pairs[i].key == key) {
+				    if(KV_pairs[i].value == DELETED)return NULL;
 					return &KV_pairs[i];
-				}
-				else if(KV_pairs[i].value != DELETED){
-                    return NULL;
 				}
 			}
 		}

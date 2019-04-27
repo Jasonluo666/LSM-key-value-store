@@ -46,42 +46,42 @@ public:
     }
 
 	void insert(K key, V value) {
-	    buff.insert(Pair<K,V>(key,value));
-	    if(buff.isfull()){
+	    buff->insert(Pair<K,V>(key,value));
+	    if(buff->isfull()){
 	        runs[0]->merge(buff->push());
             buff->clear();
             filters[0]->addKey(key);
             current_level++;
-	    }
-	    for(int i = 0; i < max_level; i++){
-	        if(i == max_level - 2){
-                if(runs[i+1]->doExist && runs[i+1]->overlimit(runs[i]->get_entries_num())){
-                    runs[i+1]->remove();
-                    runs[i]->merge();
+            for(int i = 0; i < max_level; i++){
+                if(i == max_level - 2){
+                    if(runs[i+1]->exist() && runs[i+1]->overlimit(runs[i]->get_entries_num())){
+                        runs[i+1]->removerun();
+                        runs[i]->merge();
+                    }
                 }
-	        }
-            else if(runs[i]->overlimit()){
-                if(!runs[i+1]->doExist){
-                    runs[i]->merge();
-                    runs[i]->empty();
+                else if(runs[i]->overlimit()){
+                    if(!runs[i+1]->exist()){
+                        runs[i]->merge();
+                        runs[i]->empty();
+                    }
+                    else{
+                        runs[i+1]->merge(runs[i]->load());
+                    }
+                    filters[i+1]->addKey(key);
+                    current_level++;
                 }
                 else{
-                    runs[i+1]->merge(runs[i]->load());
+                    break;
                 }
-                filters[i+1]->addKey(key);
-                current_level++;
-            }
-            else{
-                break;
             }
 	    }
 	}
 
 	vector<Pair<K, V> > range(K key_min, K key_max) {
 	    vector<KV_pair> A,B;
-	    A = buff.range(key_min, key_max);
+	    A = buff->range(key_min, key_max);
 	    for(int i = 0; i < current_level; i++){
-            if(runs[i]->doExist){
+            if(runs[i]->exist()){
                 B = runs[i]->rangeSearch(key_min, key_max);
                 A = trickySort(A,B);
             }
@@ -96,24 +96,25 @@ public:
 	Pair<K,V>* lookup(K key) {
 	    Pair<K,V>* aPair;
 	    Pair<K,V>* result= buff->lookup(key);
-	    if(result->value == TOMBSTONE){
-            return NULL;
-	    }
-	    else if (result != NULL){
-            return result;
-	    }
-	    else{
+	    if(result == NULL){
             for(int i = 0; i < current_level; i++){
                 if(filters[i]->contain(key)){
-                    aPair = runs[i]->lookup();
-                    if(aPair->value == TOMBSTONE){
-                        return NULL;
-                    }
-                    else if(aPair != NULL){
-                        return aPair;
+                    aPair = runs[i]->lookup(key);
+                    if(aPair != NULL){
+                        if(aPair->value == TOMBSTONE){
+                            return NULL;
+                        }
+                        else return aPair;
                     }
                 }
             }
 	    }
+	    else if(result->value == TOMBSTONE){
+            return NULL;
+	    }
+	    else{
+            return result;
+	    }
+	    return NULL;
 	}
 };
