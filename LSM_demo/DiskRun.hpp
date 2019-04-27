@@ -80,6 +80,9 @@ public:
 	}
 
 	KV_pair* lookup(K key){
+	    if(!doExist){
+            return NULL;
+	    }
 	    int i;
 	    KV_pair *aPair = new KV_pair;
 	    if(key >= MIN && key <= MAX)
@@ -168,7 +171,7 @@ public:
 	vector<KV_pair> load(){
 	    vector<KV_pair> kv_pairs;
 	    KV_pair aPair;
-	    fstream file(dir.c_str(),ios::in||ios::binary);
+	    fstream file(dir.c_str(),ios::in|ios::binary);
 	    if(!file.is_open()){
             cout<<"Cannot load\n";
 	    }
@@ -212,7 +215,7 @@ public:
 	    return this->entries_num;
 	}
 
-	void remove(){
+	void removerun(){
 	    entries_num = 0;
 	    doExist = false;
 	    MIN = 0;
