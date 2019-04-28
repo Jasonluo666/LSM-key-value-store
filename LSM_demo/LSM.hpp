@@ -66,10 +66,6 @@ public:
         this->page_size = page_size;
         this->max_level = max_level;
         this->runs_per_level = runs_per_level;
-<<<<<<< HEAD
-        buff = new Buffer<K, V>(buffer_size/sizeof(KV_pair));
-        runs = new DiskRun<K,V>[max_level];
-=======
         current_level = 0;
         buff = new Buffer<K,V>(buffer_size/sizeof(KV_pair));
         runs = new DiskRun<K,V>*[max_level];
@@ -83,7 +79,6 @@ public:
             filters[i] = new BloomFilter<K>(run_entries*runs_per_level,FP_rate);
             run_entries *= runs_per_level;
         }
->>>>>>> 92b3c46858575d50fa72d4b967f58b2d7ef61022
     }
 
 	void insert(K key, V value) {
@@ -117,11 +112,6 @@ public:
             }
 	    }
 	}
-<<<<<<< HEAD
-
-	vector<Pair<K, V> > range(K key_min, K key_max) {
-=======
->>>>>>> 92b3c46858575d50fa72d4b967f58b2d7ef61022
 
 	vector<Pair<K, V> > range(K key_min, K key_max) {
 	    vector<KV_pair> A,B;
