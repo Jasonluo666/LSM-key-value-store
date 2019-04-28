@@ -140,7 +140,8 @@ public:
 	    Pair<K,V> aPair = {key,0};
 	    buff->_delete(aPair);
 	}
-	Pair<K,V>* lookup(K key) {
+	Pair<K,V> lookup(K key) {
+	    Pair<K,V> _Pair = {key,TOMBSTONE};
 	    Pair<K,V>* aPair;
 	    Pair<K,V>* result= buff->lookup(key);
 	    if(result == NULL){
@@ -149,19 +150,27 @@ public:
                     aPair = runs[i]->lookup(key);
                     if(aPair != NULL){
                         if(aPair->value == TOMBSTONE){
-                            return NULL;
+                            delete aPair;
+                            return _Pair;
                         }
-                        else return aPair;
+                        else{
+                            _Pair.key = (*aPair).key;
+                            _Pair.value = (*aPair).value;
+                            delete aPair;
+                            return _Pair;
+                        }
                     }
                 }
             }
 	    }
 	    else if(result->value == TOMBSTONE){
-            return NULL;
+	        return _Pair;
 	    }
 	    else{
-            return result;
+	        _Pair.key = (*result).key;
+	        _Pair.value = (*result).value;
+	        return _Pair;
 	    }
-	    return NULL;
+	    return _Pair;
 	}
 };
