@@ -18,8 +18,8 @@ public:
 		size = (int) -n_item * log(fp_rate) / 0.480453;
 		n_hash = size / n_item * 0.693147;
 
-		filter = vector<bool>(size);
-		clearit();
+		filter = vector<bool>(size, false);
+		//clearit();
 	}
 
 	void addKey(K key) {
