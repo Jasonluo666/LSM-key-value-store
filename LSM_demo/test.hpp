@@ -35,3 +35,158 @@ vector<Pair<int,int> > createvector(int n){
 }
 
 #endif // _TEST
+
+
+#include <iostream>
+#include "fstream"
+#include "vector"
+#include <random>
+#include <windows.h>
+using namespace std;
+
+struct TestParams {
+	int num_insert;
+	int num_lookup;
+	int range_min = 0;
+	int range_max = 10000;
+};
+
+template<typename K, typename V>
+void performanceTest(LSM<K, V> lsm, TestParams param) {
+	//LSM* lsm(param.entry_per_run, param.run_per_level, param.fp_rate, param.pageSize);
+
+	SYSTEMTIME start, finish;
+	vector<int> insert_data;
+	std::uniform_int_distribution<int> distribution(INT_MIN + 1, INT_MAX);
+	std::default_random_engine generator;
+
+	// insert uniformly distributed data
+	for (int i = 0; i < param.num_insert; i++) {
+		insert_data.push_back(distribution(generator));
+	}
+
+	cout << "insert start" << endl;
+	GetSystemTime(&start);
+	for (int i = 0; i < param.num_insert; i++) {
+		lsm.insert(insert_data[i], i);
+	}
+	GetSystemTime(&finish);
+	cout << "insert finish" << endl;
+
+	cout << "time cost " << finish.wSecond - start.wSecond << endl;
+
+	cout << "sequential lookup start" << endl;
+	GetSystemTime(&start);
+	Pair<K, V> pair;
+	for (int i = 0; i < param.num_lookup; i++) {
+		if (i < param.num_insert) {
+			pair = lsm.lookup(insert_data[i]);
+		}
+		//  some random lookup value (test not found cost)
+		else {
+			pair = lsm.lookup(distribution(generator));
+		}
+	}
+	GetSystemTime(&finish);
+	cout << "sequential lookup finish" << endl;
+
+	cout << "time cost " << finish.wSecond - start.wSecond << endl;
+
+
+	// update -> insert same keys with different values
+	cout << "update start" << endl;
+	GetSystemTime(&start);
+	for (int i = 0; i < param.num_insert; i++) {
+		lsm.insert(insert_data[i], -1);
+	}
+	GetSystemTime(&finish);
+	cout << "insert finish" << endl;
+
+	// check if uodated -> current values are equal to -1
+	cout << "validation.." << endl;
+	for (int i = 0; i < param.num_insert; i++) {
+		pair = lsm.lookup(insert_data[i]);
+		if (pair.value != -1)
+			break;
+	}
+
+	/* TODO: size should not change */
+
+	if (pair.value != -1)
+		cout << "validation fails" << endl;
+	else
+		cout << "validation succeeds" << ends;
+
+	cout << "time cost " << finish.wSecond - start.wSecond << endl;
+
+
+	// delete -> delete all values
+	cout << "delete start" << endl;
+	GetSystemTime(&start);
+	for (int i = 0; i < param.num_insert; i++) {
+		lsm.delete_key(insert_data[i]);
+	}
+	GetSystemTime(&finish);
+	cout << "insert finish" << endl;
+
+	// check if deleted -> push new data in
+	cout << "validation.." << endl;
+	for (int i = 0; i < param.num_insert; i++) {
+		pair = lsm.lookup(insert_data[i]);
+		if (pair.value != TOMBSTONE)
+			break;
+	}
+
+	/* TODO: size should not change */
+
+	if (pair.value != TOMBSTONE)
+		cout << "validation fails" << endl;
+	else
+
+		cout << "validation succeeds" << ends;
+
+	cout << "time cost " << finish.wSecond - start.wSecond << endl;
+}
+
+template<typename K, typename V>
+void rangeSearchTest(LSM<K, V> lsm, TestParams param) {
+	//LSM* lsm(param.entry_per_run, param.run_per_level, param.fp_rate, param.pageSize);
+
+	SYSTEMTIME start, finish;
+	vector<int> insert_data;
+
+	// insert uniformly distributed data
+	for (int i = param.range_min; i < param.range_max; i++) {
+		insert_data.push_back(i);
+	}
+
+	cout << "insert start" << endl;
+	GetSystemTime(&start);
+	for (int i = param.range_min; i < param.range_max; i++) {
+		lsm.insert(insert_data[i], i);
+	}
+	GetSystemTime(&finish);
+	cout << "insert finish" << endl;
+
+	cout << "time cost " << finish.wSecond - start.wSecond << endl;
+
+	cout << "range search start" << endl;
+	GetSystemTime(&start);
+	vector< Pair<K, V> > search = lsm.range(param.range_min, param.range_max);
+	cout << "range search finish" << endl;
+
+	// check if deleted -> push new data in
+	cout << "validation.." << endl;
+	for (int i = 0; i < param.num_insert; i++) {
+		lsm.insert(insert_data[i], i);
+	}
+
+	/* TODO: size should not change */
+	int return_size;
+	if (return_size != param.range_max - param.range_min)
+		cout << "validation fails" << endl;
+	else
+		cout << "validation succeeds" << ends;
+
+	cout << "time cost " << finish.wSecond - start.wSecond << endl;
+}
