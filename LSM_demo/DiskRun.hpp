@@ -91,7 +91,10 @@ public:
 					break;
 				}
 			}
-			if (i == page_num)return NULL;
+			if (i == page_num){
+			    delete aPair;
+			    return NULL;
+			}
 			vector<KV_pair> KV_pairs(this->load(i));
 			for (i = 0; i < (int)KV_pairs.size(); i++) {
 				if (KV_pairs[i].key == key) {
@@ -101,6 +104,7 @@ public:
 				}
 			}
 		}
+		delete aPair;
 	    return NULL;
 	}
 

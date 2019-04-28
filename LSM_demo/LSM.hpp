@@ -164,14 +164,12 @@ public:
             }
 	    }
 	    else if(result->value == TOMBSTONE){
-	        delete result;
-            return _Pair;
+	        return _Pair;
 	    }
 	    else{
 	        _Pair.key = (*result).key;
 	        _Pair.value = (*result).value;
-	        delete result;
-            return _Pair;
+	        return _Pair;
 	    }
 	    return _Pair;
 	}
