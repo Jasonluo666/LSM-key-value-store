@@ -10,18 +10,18 @@ int main(int argc, char* argv[]) {
 
 	cout << "hello world" << endl;
 	LSM<int,int> tree(4096,4096,16,2);
-	for(int i = 0; i < 1024; i++){
-        tree.insert(i,i);
-	}
-	for(int i = 0; i < 2000; i++){
-        prints(tree.lookup(i));
-	}
+	//for(int i = 0; i < 1024; i++){
+ //       tree.insert(i,i);
+	//}
+	//for(int i = 0; i < 2000; i++){
+ //       prints(tree.lookup(i));
+	//}
 
 	TestParams param;
 	param.num_insert = 1000;
 	param.num_lookup = 2000;
 	param.range_min = 0;
-	param.range_max = 1000;
+	param.range_max = 2000;
 
 	performanceTest<int, int>(tree, param);
 	//prints(tree.range(-500,1500));

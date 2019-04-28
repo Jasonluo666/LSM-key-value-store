@@ -56,7 +56,7 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 
 	SYSTEMTIME start, finish;
 	vector<int> insert_data;
-	std::uniform_int_distribution<int> distribution(INT_MIN, INT_MAX);
+	std::uniform_int_distribution<int> distribution(INT_MIN + 1, INT_MAX);
 	std::default_random_engine generator;
 
 	// insert uniformly distributed data
@@ -78,10 +78,11 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 	GetSystemTime(&start);
 	Pair<K, V> pair;
 	for (int i = 0; i < param.num_lookup; i++) {
-		pair = lsm.lookup(insert_data[i]);
-
+		if (i < param.num_insert) {
+			pair = lsm.lookup(insert_data[i]);
+		}
 		//  some random lookup value (test not found cost)
-		if (i >= param.num_insert) {
+		else {
 			pair = lsm.lookup(distribution(generator));
 		}
 	}
@@ -103,14 +104,14 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 	// check if uodated -> current values are equal to -1
 	cout << "validation.." << endl;
 	for (int i = 0; i < param.num_insert; i++) {
-		value = lsm.lookup(insert_data[i]);
-		if (value.value != -1)
+		pair = lsm.lookup(insert_data[i]);
+		if (pair.value != -1)
 			break;
 	}
 
 	/* TODO: size should not change */
 
-	if (value != -1)
+	if (pair.value != -1)
 		cout << "validation fails" << endl;
 	else
 		cout << "validation succeeds" << ends;
@@ -119,7 +120,7 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 
 
 	// delete -> delete all values
-	cout << "update start" << endl;
+	cout << "delete start" << endl;
 	GetSystemTime(&start);
 	for (int i = 0; i < param.num_insert; i++) {
 		lsm.delete_key(insert_data[i]);
@@ -130,12 +131,14 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 	// check if deleted -> push new data in
 	cout << "validation.." << endl;
 	for (int i = 0; i < param.num_insert; i++) {
-		lsm.insert(insert_data[i], i);
+		pair = lsm.lookup(insert_data[i]);
+		if (pair.value != TOMBSTONE)
+			break;
 	}
 
 	/* TODO: size should not change */
 
-	if (value != param.num_insert)
+	if (pair.value != TOMBSTONE)
 		cout << "validation fails" << endl;
 	else
 
