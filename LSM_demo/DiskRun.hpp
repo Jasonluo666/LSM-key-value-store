@@ -122,7 +122,7 @@ public:
 			for (int page_index = 0; page_index < page_num - 1; page_index++) {
 				if (key_min <= fence_pointer[page_index + 1] && key_max >= fence_pointer[page_index]) {
 					// read page [index * page_size, index * page_size + page_size]
-					cout << fence_pointer[page_index];
+					cout << fence_pointer[page_index]<<endl;
 					// switch the read pointer
 					streampos current_pos = page_index * page_size;
 					run.seekg(current_pos);

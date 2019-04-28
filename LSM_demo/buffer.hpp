@@ -90,9 +90,8 @@ public :
 		KV_pair aPair = {kv_pair.key,DELETED};
         for(i = 0; i < elem_num; i++){
             if(KV_pairs[i].key == kv_pair.key){
-                KV_pairs.erase(KV_pairs.begin() + i);
-                elem_num -=1;
-				break;
+                KV_pairs[i].value = DELETED;
+                break;
             }
         }
         if(i==elem_num){
