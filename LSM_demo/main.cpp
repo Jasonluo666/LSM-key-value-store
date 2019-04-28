@@ -16,6 +16,14 @@ int main(int argc, char* argv[]) {
 	for(int i = 0; i < 2000; i++){
         prints(tree.lookup(i));
 	}
+
+	TestParams param;
+	param.num_insert = 1000;
+	param.num_lookup = 2000;
+	param.range_min = 0;
+	param.range_max = 1000;
+
+	performanceTest<int, int>(tree, param);
 	//prints(tree.range(-500,1500));
 
 	/*
