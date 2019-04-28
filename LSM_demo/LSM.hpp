@@ -85,6 +85,7 @@ public:
 	    buff->insert(Pair<K,V>(key,value));
 	    if(buff->isfull()){
 	        vector<Pair<K,V> > Pairs(buff->push());
+			sort(Pairs.begin(), Pairs.end());
 	        runs[0]->merge(Pairs);
 	        for(int i = 0; i < (int)Pairs.size(); i++){
                 filters[0]->addKey(Pairs[i].key);

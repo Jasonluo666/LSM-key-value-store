@@ -85,21 +85,22 @@ public:
 	    }
 	    int i;
 	    KV_pair *aPair = new KV_pair;
-	    if(key >= MIN && key <= MAX)
-	    for(i=0; i<page_num; i++){
-	        if( (i==page_num-1 && key >= fence_pointer[i] && key <= MAX) || (key >= fence_pointer[i] && key < fence_pointer[i+1] )){
-	            break;
-            }
-	    }
-	    if(i==page_num)return NULL;
-	    vector<KV_pair> KV_pairs(this->load(i));
-	    for(i=0;i<(int)KV_pairs.size();i++){
-            if(KV_pairs[i].key == key){
-                aPair->key = KV_pairs[i].key;
-                aPair->value = KV_pairs[i].value;
-                return aPair;
-            }
-	    }
+		if (key >= MIN && key <= MAX) {
+			for (i = 0; i < page_num; i++) {
+				if ((i == page_num - 1 && key >= fence_pointer[i] && key <= MAX) || (key >= fence_pointer[i] && key < fence_pointer[i + 1])) {
+					break;
+				}
+			}
+			if (i == page_num)return NULL;
+			vector<KV_pair> KV_pairs(this->load(i));
+			for (i = 0; i < (int)KV_pairs.size(); i++) {
+				if (KV_pairs[i].key == key) {
+					aPair->key = KV_pairs[i].key;
+					aPair->value = KV_pairs[i].value;
+					return aPair;
+				}
+			}
+		}
 	    return NULL;
 	}
 
@@ -120,7 +121,8 @@ public:
 					cout << fence_pointer[page_index];
 					// switch the read pointer
 					streampos current_pos = page_index * page_size;
-					run.seekg(current_pos);
+					run.seekg(current_pos)
+						;
 					while((int) current_pos + sizeof(K) + sizeof(V) <= page_index * page_size + page_size){
 						// read K, V value
 						run.read((char*)&buffer_key, sizeof(K));
