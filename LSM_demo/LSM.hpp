@@ -21,7 +21,43 @@ private:
     int current_level;
 public:
 
+	// sort two sorted arrays
+	vector<KV_pair> trickySort(vector<KV_pair> new_vec, vector<KV_pair> old_vec) {
+		int pointer1 = 0, pointer2 = 0;
+		vector<KV_pair> merged;
+
+		// two pointers scan thru the vectors
+		while (pointer1 < new_vec.size() && pointer2 < old_vec.size()) {
+			if (new_vec[pointer1] < old_vec[pointer2]) {
+				merged.push_back(new_vec[pointer1]);
+				pointer1 += 1;
+			}
+			else if (new_vec[pointer1] > old_vec[pointer2]) {
+				merged.push_back(old_vec[pointer2]);
+				pointer2 += 1;
+			}
+			else {	// equal -> check if it's TOMBSTONE
+				if (new_vec[pointer1].value != TOMBSTONE)
+					merged.push_back(new_vec[pointer1]);
+
+				pointer1 += 1;
+				pointer2 += 1;
+			}
+		}
+
+		// append the leftover
+		if (pointer1 < new_vec.size())
+			merged.insert(merged.end(), new_vec.begin() + pointer1, new_vec.end());
+		// append the leftover
+		if (pointer2 < old_vec.size())
+			merged.insert(merged.end(), old_vec.begin() + pointer2, old_vec.end());
+
+		return merged;
+	}
+
+public:
     LSM(){
+
     }
 
     LSM(int buffer_size, int page_size, int max_level, int runs_per_level){
