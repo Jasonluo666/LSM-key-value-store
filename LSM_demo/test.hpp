@@ -13,12 +13,12 @@ void prints( vector<Pair<int,int> > KV_pairs){
     }
 }
 
-void prints(Pair<int,int>* aPair){
-    if(aPair == NULL){
+void prints(Pair<int,int> aPair){
+    if(aPair.value == TOMBSTONE){
         cout<<"No such entry"<<endl;
     }
     else{
-        cout<<"<"<<(*aPair).key<<","<<(*aPair).value<<">"<<endl;
+        cout<<"<"<<(aPair).key<<","<<(aPair).value<<">"<<endl;
     }
 }
 
