@@ -71,12 +71,12 @@ public:
 
 	}
 
-	bool overlimit(){
-	    return entries_num >= capacity;
+	bool overlimit(int n){
+	    return entries_num > capacity / n * (n-1);
 	}
 
-	bool overlimit(int n){
-	    return entries_num + n >= capacity;
+	bool last_overlimit(int n){
+	    return entries_num + n > capacity;
 	}
 
 	KV_pair* lookup(K key){
@@ -121,8 +121,7 @@ public:
 					cout << fence_pointer[page_index];
 					// switch the read pointer
 					streampos current_pos = page_index * page_size;
-					run.seekg(current_pos)
-						;
+					run.seekg(current_pos);
 					while((int) current_pos + sizeof(K) + sizeof(V) <= page_index * page_size + page_size){
 						// read K, V value
 						run.read((char*)&buffer_key, sizeof(K));

@@ -70,7 +70,7 @@ public:
         buff = new Buffer<K,V>(buffer_size/sizeof(KV_pair));
         runs = new DiskRun<K,V>*[max_level];
         for(int i = 0; i < max_level; i++){
-            runs[i] = new DiskRun<K,V>(run_entries*(runs_per_level-1),page_size,i+1,1);
+            runs[i] = new DiskRun<K,V>(run_entries*runs_per_level,page_size,i+1,1);
             run_entries *= runs_per_level;
         }
         run_entries = buffer_size / sizeof(KV_pair);
@@ -86,7 +86,7 @@ public:
 	    if(buff->isfull()){
 	        vector<Pair<K,V> > Pairs(buff->push());
 			sort(Pairs.begin(), Pairs.end());
-	        runs[0]->merge(Pairs);
+	        runs[0]->merge(trickySort(Pairs,runs[0]->load()));
 	        for(int i = 0; i < (int)Pairs.size(); i++){
                 filters[0]->addKey(Pairs[i].key);
             }
@@ -94,12 +94,12 @@ public:
             current_level++;
             for(int i = 0; i < max_level; i++){
                 if(i == max_level - 2){
-                    if(runs[i+1]->exist() && runs[i+1]->overlimit(runs[i]->get_entries_num())){
+                    if(runs[i+1]->exist() && runs[i+1]->last_overlimit(runs[i]->get_entries_num())){
                         runs[i+1]->removerun();
                         runs[i]->merge();
                     }
                 }
-                else if(runs[i]->overlimit()){
+                else if(runs[i]->overlimit(runs_per_level)){
                     if(!runs[i+1]->exist()){
                         Pairs = runs[i]->load();
                         runs[i+1]->merge(Pairs);
