@@ -54,10 +54,10 @@ public :
     }
 
     KV_pair* lookup(Key key){
-		if (key >= MIN && key <= MAX) {	// skip if out of range
+        if (key >= MIN && key <= MAX) {	// skip if out of range
 			for (int i = 0; i < elem_num; i++) {
 				if (KV_pairs[i].key == key) {
-				    if(KV_pairs[i].value == DELETED)return NULL;
+				    //if(KV_pairs[i].value == DELETED)return NULL;
 					return &KV_pairs[i];
 				}
 			}
@@ -70,7 +70,7 @@ public :
         vector<KV_pair> kv_pairs;
 		if (k1 <= MAX && k2 >= MIN) {
 			for (int i = 0; i < elem_num; i++) {
-				if (KV_pairs[i].key >= k1 && KV_pairs[i].key <= k2 && KV_pairs[i].value != DELETED) {
+				if (KV_pairs[i].key >= k1 && KV_pairs[i].key <= k2) {
 					kv_pairs.push_back(KV_pairs[i]);
 				}
 			}
@@ -119,8 +119,8 @@ private:
     vector<KV_pair> KV_pairs;
     int elem_num;//number of Key-Value pairs
     int capacity;
-    unsigned int MIN;
-    unsigned int MAX;
+    Key MIN;
+    Key MAX;
 };
 
 

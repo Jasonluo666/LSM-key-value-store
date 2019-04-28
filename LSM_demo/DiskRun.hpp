@@ -111,7 +111,9 @@ public:
 
 		if (key_min <= MAX && key_max >= fence_pointer[0]) {
 			run.open(dir.c_str(), ios::in | ios::binary);
-
+			if(!run.is_open()){
+                cout<<"Cannot open"<<endl;
+			}
 			for (int page_index = 0; page_index < page_num - 1; page_index++) {
 				if (key_min <= fence_pointer[page_index + 1] && key_max >= fence_pointer[page_index]) {
 					// read page [index * page_size, index * page_size + page_size]
@@ -143,7 +145,7 @@ public:
 				int tail = run.tellg();
 
 				// switch the read pointer
-				streampos current_pos = page_num * page_size;
+				streampos current_pos = ( page_num - 1 ) * page_size;
 				run.seekg(current_pos);
 				while ((int) current_pos + sizeof(K) + sizeof(V) <= tail) {
 					// read K, V value
@@ -252,6 +254,7 @@ public:
             file.write((char *) &KV_pairs[i], sizeof(KV_pair));
         }
         file.close();
+        doExist = true;
     }
 
     void merge(){
