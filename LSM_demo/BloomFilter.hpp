@@ -19,6 +19,7 @@ public:
 		n_hash = size / n_item * 0.693147;
 
 		filter = vector<bool>(size);
+		clearit();
 	}
 
 	void addKey(K key) {
@@ -28,6 +29,12 @@ public:
 			filter[current_hash % size] = true;
 			current_hash = hash_func2(current_hash);
 		}
+	}
+
+	void clearit(){
+	    for(int i = 0; i < size; i++){
+	        filter[i] = false;
+	    }
 	}
 
 	bool contain(K key) {

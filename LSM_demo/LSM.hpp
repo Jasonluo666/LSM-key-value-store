@@ -84,9 +84,12 @@ public:
 	void insert(K key, V value) {
 	    buff->insert(Pair<K,V>(key,value));
 	    if(buff->isfull()){
-	        runs[0]->merge(buff->push());
+	        vector<Pair<K,V> > Pairs(buff->push());
+	        runs[0]->merge(Pairs);
+	        for(int i = 0; i < (int)Pairs.size(); i++){
+                filters[0]->addKey(Pairs[i].key);
+            }
             buff->clear();
-            filters[0]->addKey(key);
             current_level++;
             for(int i = 0; i < max_level; i++){
                 if(i == max_level - 2){
@@ -97,13 +100,20 @@ public:
                 }
                 else if(runs[i]->overlimit()){
                     if(!runs[i+1]->exist()){
-                        runs[i]->merge();
-                        runs[i]->empty();
+                        Pairs = runs[i]->load();
+                        runs[i+1]->merge(Pairs);
+                        runs[i]->removerun();
+                        filters[i]->clearit();
                     }
                     else{
-                        runs[i+1]->merge(runs[i]->load());
+                        Pairs = trickySort(runs[i]->load(),runs[i+1]->load());
+                        runs[i+1]->merge(Pairs);
+                        runs[i]->removerun();
+                        filters[i]->clearit();
                     }
-                    filters[i+1]->addKey(key);
+                    for(int j = 0; j < (int)Pairs.size(); j++){
+                        filters[i+1]->addKey(Pairs[j].key);
+                    }
                     current_level++;
                 }
                 else{
