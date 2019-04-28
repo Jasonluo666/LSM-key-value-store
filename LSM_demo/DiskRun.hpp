@@ -43,18 +43,13 @@ class DiskRun : Run<K, V> {
     int level;
     int run_No;
     int entries_num;
-	int page_num;
-	int page_size;
-	bool doExist;
-	K* fence_pointer;
-	K MIN;
-	K MAX;
-	string dir;
-
-	bool initialized;
-
-	void merge(){
-	}
+    int page_num;
+    int page_size;
+    bool doExist;
+    K* fence_pointer;
+    K MIN;
+    K MAX;
+    string dir;
 
 public:
 	DiskRun() {
@@ -69,7 +64,6 @@ public:
 	    this->page_size = pagesize;
 	    this->level = level;
 	    this->run_No = run_No;
-	    initialized = true;
 	    doExist = false;
 	}
 
@@ -77,7 +71,18 @@ public:
 
 	}
 
+	bool overlimit(){
+	    return entries_num >= capacity;
+	}
+
+	bool overlimit(int n){
+	    return entries_num + n >= capacity;
+	}
+
 	KV_pair* lookup(K key){
+	    if(!doExist){
+            return NULL;
+	    }
 	    int i;
 	    KV_pair *aPair = new KV_pair;
 	    if(key >= MIN && key <= MAX)
@@ -166,7 +171,7 @@ public:
 	vector<KV_pair> load(){
 	    vector<KV_pair> kv_pairs;
 	    KV_pair aPair;
-	    fstream file(dir.c_str(),ios::in||ios::binary);
+	    fstream file(dir.c_str(),ios::in|ios::binary);
 	    if(!file.is_open()){
             cout<<"Cannot load\n";
 	    }
@@ -206,6 +211,19 @@ public:
 	    delete fence_pointer;
 	}
 
+	int get_entries_num(){
+	    return this->entries_num;
+	}
+
+	void removerun(){
+	    entries_num = 0;
+	    doExist = false;
+	    MIN = 0;
+	    MAX = 0;
+	    delete fence_pointer;
+	    remove(dir.c_str());
+	}
+
 	bool exist(){
 	    return doExist;
 	}
@@ -234,6 +252,11 @@ public:
             file.write((char *) &KV_pairs[i], sizeof(KV_pair));
         }
         file.close();
+    }
+
+    void merge(){
+        string newdir = "./data/LSM_L"+to_String(level+1)+"_R"+to_String(run_No)+".run";
+        rename(dir.c_str(),newdir.c_str());
     }
 
 };
