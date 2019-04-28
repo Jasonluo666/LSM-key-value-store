@@ -86,13 +86,20 @@ public:
 	    if(buff->isfull()){
 	        vector<Pair<K,V> > Pairs(buff->push());
 			sort(Pairs.begin(), Pairs.end());
-	        runs[0]->merge(trickySort(Pairs,runs[0]->load()));
+			if(runs[0]->exist()){
+			    runs[0]->merge(trickySort(Pairs,runs[0]->load()));
+			}
+			else{
+                runs[0]->merge(Pairs);
+			}
 	        for(int i = 0; i < (int)Pairs.size(); i++){
                 filters[0]->addKey(Pairs[i].key);
             }
             buff->clear();
-            current_level++;
-            for(int i = 0; i < max_level; i++){
+            if(current_level < 1){
+                current_level++;
+            }
+            for(int i = 0; i < current_level; i++){
                 if(i == max_level - 2){
                     if(runs[i+1]->exist() && runs[i+1]->last_overlimit(runs[i]->get_entries_num())){
                         runs[i+1]->removerun();
@@ -115,7 +122,9 @@ public:
                     for(int j = 0; j < (int)Pairs.size(); j++){
                         filters[i+1]->addKey(Pairs[j].key);
                     }
-                    current_level++;
+                    if(i+1 >= current_level){
+                        current_level++;
+                    }
                 }
                 else{
                     break;
@@ -146,7 +155,7 @@ public:
 	    Pair<K,V>* result= buff->lookup(key);
 	    if(result == NULL){
             for(int i = 0; i < current_level; i++){
-                if(filters[i]->contain(key)){
+                if(runs[i]->exist() && filters[i]->contain(key)){
                     aPair = runs[i]->lookup(key);
                     if(aPair != NULL){
                         if(aPair->value == TOMBSTONE){
