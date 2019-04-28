@@ -10,13 +10,16 @@ int main(int argc, char* argv[]) {
 
 	cout << "hello world" << endl;
 	LSM<int,int> tree(4096,4096,16,2);
-	for(int i = 0; i < 1024; i++){
+	for(int i = 0; i < 10000; i++){
         tree.insert(i,i);
 	}
-	for(int i = 0; i < 2000; i++){
+	for(int i = 0; i < 10000; i+=2){
+        tree.delete_key(i);
+	}
+	for(int i = 0; i < 10000; i++){
         prints(tree.lookup(i));
 	}
-	//prints(tree.range(-500,1500));
+	prints(tree.range(-500,1500));
 
 	/*
 	int test_num = 10000;

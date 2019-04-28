@@ -9,6 +9,7 @@ using namespace std;
 
 void prints( vector<Pair<int,int> > KV_pairs){
     for(int i = 0; i < (int)KV_pairs.size(); i++){
+//        if(KV_pairs[i].value != TOMBSTONE)
         cout<<"<"<<KV_pairs[i].key<<","<<KV_pairs[i].value<<">"<<endl;
     }
 }
