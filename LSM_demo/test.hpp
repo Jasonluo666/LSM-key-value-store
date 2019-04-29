@@ -71,7 +71,7 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 	for (int i = 0; i < param.num_insert; i++) {
 		if (i % param.printout_num == 0) {
 			GetSystemTime(&finish);
-			cout << "stage: " << i << " : time cost: " << finish.wMilliseconds - start.wMilliseconds << endl;
+			cout << "stage: " << i << " : time cost: " << (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << endl;
 		}
 		lsm.insert(insert_data[i], i);
 	}
@@ -87,7 +87,7 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 	for (int i = 0; i < param.num_lookup; i++) {
 		if (i % param.printout_num == 0) {
 			GetSystemTime(&finish);
-			cout << "stage: " << i << " : time cost: " << finish.wMilliseconds - start.wMilliseconds << endl;
+			cout << "stage: " << i << " : time cost: " << (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << endl;
 		}
 
 		if (i < param.num_insert) {
@@ -112,7 +112,7 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 	for (int i = 0; i < param.num_insert; i++) {
 		if (i % param.printout_num == 0) {
 			GetSystemTime(&finish);
-			cout << "stage: " << i << " : time cost: " << finish.wMilliseconds - start.wMilliseconds << endl;
+			cout << "stage: " << i << " : time cost: " << (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << endl;
 		}
 
 		lsm.insert(insert_data[i], -1);
@@ -133,7 +133,7 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 	if (pair.value != -1)
 		cout << "validation fails" << endl;
 	else
-		cout << "validation succeeds" << ends;
+		cout << "validation succeeds" << endl;
 
 
 	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
@@ -146,7 +146,7 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 	for (int i = 0; i < param.num_insert; i++) {
 		if (i % param.printout_num == 0) {
 			GetSystemTime(&finish);
-			cout << "stage: " << i << " : time cost: " << finish.wMilliseconds - start.wMilliseconds << endl;
+			cout << "stage: " << i << " : time cost: " << (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << endl;
 		}
 
 		lsm.delete_key(insert_data[i]);
@@ -168,7 +168,7 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 		cout << "validation fails" << endl;
 	else
 
-		cout << "validation succeeds" << ends;
+		cout << "validation succeeds" << endl;
 
 
 	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
@@ -192,7 +192,7 @@ void rangeSearchTest(LSM<K, V> lsm, TestParams param) {
 	for (int i = param.range_min; i < param.range_max; i++) {
 		if (i % param.printout_num == 0) {
 			GetSystemTime(&finish);
-			cout << "stage: " << i << " : time cost: " << finish.wMilliseconds - start.wMilliseconds << endl;
+			cout << "stage: " << i << " : time cost: " << (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << endl;
 		}
 
 		lsm.insert(insert_data[i], i);
@@ -222,7 +222,7 @@ void rangeSearchTest(LSM<K, V> lsm, TestParams param) {
 	if (return_size != param.range_max - param.range_min)
 		cout << "validation fails" << endl;
 	else
-		cout << "validation succeeds" << ends;
+		cout << "validation succeeds" << endl;
 
 	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
 }
