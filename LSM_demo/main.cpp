@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
 	cout << "FN" << matrix[1][0] << endl;
 	cout << "TN" << matrix[1][1] << endl;
 	*/
-//	tree.clearfiles();
+	tree.clearfiles();
 
 	system("pause");
 	return 0;

@@ -184,7 +184,7 @@ void performanceTest(LSMParams param, int num_insert, int num_lookup) {
 	if (pair.value != -1)
 		cout << "validation fails" << endl;
 	else
-		cout << "validation succeeds" << ends;
+		cout << "validation succeeds" << endl;
 
 
 	cout << "time cost " <<  finish - start << "ms" << endl;
@@ -217,7 +217,7 @@ void performanceTest(LSMParams param, int num_insert, int num_lookup) {
 		cout << "validation fails" << endl;
 	else
 
-		cout << "validation succeeds" << ends;
+		cout << "validation succeeds" << endl;
 
 
 	cout << "time cost " <<  finish - start << "ms" << endl;
@@ -271,7 +271,7 @@ void rangeSearchTest(LSMParams param, int num_insert, int range_min, int range_m
 	if (return_size != range_max - range_min)
 		cout << "validation fails" << endl;
 	else
-		cout << "validation succeeds" << ends;
+		cout << "validation succeeds" << endl;
 
 	cout << "time cost " <<  finish - start << "ms" << endl;
 }

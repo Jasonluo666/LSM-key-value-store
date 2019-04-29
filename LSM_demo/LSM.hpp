@@ -184,7 +184,7 @@ public:
 
 	void clearfiles(){
 	    for(int i = 0; i < max_level; i++){
-            runs[i]->removerun();
+	        if(runs[i]->exist())runs[i]->removerun();
 	    }
 	}
 
