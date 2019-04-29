@@ -54,6 +54,44 @@ struct LSMParams {
 };
 
 template<typename K, typename V>
+void throughputTest(LSMParams param, int num_opr){
+	DWORD start, finish;
+	vector<int> insert_data, lookup_key;
+	std::uniform_int_distribution<int> distribution(INT_MIN + 1, INT_MAX);
+	std::default_random_engine generator;
+
+	// insert uniformly distributed data
+	for (int i = 0; i < num_opr; i++) {
+		insert_data.push_back(distribution(generator));
+		lookup_key.push_back(distribution(generator));
+	}
+
+	for (double lookup_ratio = 0.1; lookup_ratio < 1.01; lookup_ratio += 0.1) {
+		cout << "lookup ratio: " << lookup_ratio << " ------------------------------------------------" << endl;
+		LSM<K, V> lsm(param.buffer_size, param.page_size, param.max_level, param.runs_per_level, param.FP_rate);
+		cout << "lookup + insert start" << endl;
+		start = GetTickCount();
+		for (int i = 0; i < num_opr; i++) {
+			if (i % param.printout_num == 0) {
+				finish = GetTickCount();
+				cout << "stage: " << i << " : time cost: " << finish - start << endl;
+			}
+			
+			if ((i % 10) / 10.0 <= lookup_ratio)
+				lsm.insert(insert_data[i], i);
+			else
+				lsm.lookup(lookup_key[i]);
+		}
+		finish = GetTickCount();
+		cout << "lookup + insert finish" << endl;
+
+		cout << "time cost " << finish - start << "ms" << endl;
+
+		lsm.clearfiles();
+	}
+}
+
+template<typename K, typename V>
 void bloomfilterTest(LSMParams param, int num_insert) {
 
 	DWORD start, finish;
@@ -67,7 +105,7 @@ void bloomfilterTest(LSMParams param, int num_insert) {
 		lookup_key.push_back(distribution(generator));
 	}
 
-	for (double fp_rate = 0.0; fp_rate < 1.1; fp_rate += 0.1) {
+	for (double fp_rate = 0.1; fp_rate < 1.01; fp_rate += 0.1) {
 		cout << "FP rate: " << fp_rate << " ------------------------------------------------" << endl;
 		LSM<K, V> lsm(param.buffer_size, param.page_size, param.max_level, param.runs_per_level, fp_rate);
 		cout << "insert start" << endl;

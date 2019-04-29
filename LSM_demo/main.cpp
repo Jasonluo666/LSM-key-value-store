@@ -33,7 +33,8 @@ int main(int argc, char* argv[]) {
 
 	//performanceTest<int, int>(param, 1000, 2000);
 	//rangeSearchTest<int, int>(param, 1000, 0, 2000);
-	bloomfilterTest<int, int>(param, 1000);
+	//bloomfilterTest<int, int>(param, 1000);
+	throughputTest<int, int>(param, 10000);
 	//prints(tree.range(-500,1500));
 
 	/*
@@ -63,7 +64,7 @@ int main(int argc, char* argv[]) {
 	cout << "FN" << matrix[1][0] << endl;
 	cout << "TN" << matrix[1][1] << endl;
 	*/
-	tree.clearfiles();
+	//tree.clearfiles();
 
 	system("pause");
 	return 0;
