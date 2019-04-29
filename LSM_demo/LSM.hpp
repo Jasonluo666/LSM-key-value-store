@@ -59,7 +59,7 @@ public:
 
     }
 
-    LSM(int buffer_size, int page_size, int max_level, int runs_per_level, int FP_rate=0.1){
+    LSM(int buffer_size, int page_size, int max_level, int runs_per_level, float FP_rate=0.1){
         int run_entries = buffer_size / sizeof(KV_pair);
         this->buffer_size = buffer_size;
         this->page_size = page_size;
