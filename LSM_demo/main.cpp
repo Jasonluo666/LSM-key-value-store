@@ -34,8 +34,10 @@ int main(int argc, char* argv[]) {
 	param.num_lookup = 2000;
 	param.range_min = 0;
 	param.range_max = 2000;
+	param.printout_num = 100;
 
-	performanceTest<int, int>(tree, param);
+	//performanceTest<int, int>(tree, param);
+	rangeSearchTest<int, int>(tree, param);
 	//prints(tree.range(-500,1500));
 
 	/*
