@@ -5,7 +5,7 @@
 #include "DiskRun.hpp"
 #include "Vector"
 #include "BloomFilter.hpp"
-#define FP_rate 0.1
+#define FP_rate 1.0
 
 template<typename K, typename V>
 class LSM {
@@ -185,7 +185,7 @@ public:
 
 	void clearfiles(){
 	    for(int i = 0; i < max_level; i++){
-            runs[i]->removerun();
+	        if(runs[i]->exist())runs[i]->removerun();
 	    }
 	}
 
