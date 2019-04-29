@@ -53,6 +53,7 @@ struct LSMParams {
 	int printout_num = 100;
 };
 
+// # of entries in run -> insert / lookup latency
 template<typename K, typename V>
 void runsizeTest(LSMParams param, int num_opr) {
 	DWORD start, finish;
@@ -101,6 +102,7 @@ void runsizeTest(LSMParams param, int num_opr) {
 	}
 }
 
+// insert/lookup ratio -> system throughput
 template<typename K, typename V>
 void throughputTest(LSMParams param, int num_opr){
 	DWORD start, finish;
@@ -139,6 +141,7 @@ void throughputTest(LSMParams param, int num_opr){
 	}
 }
 
+// bloom filter fp rate -> query performance
 template<typename K, typename V>
 void bloomfilterTest(LSMParams param, int num_insert) {
 
@@ -299,7 +302,7 @@ void performanceTest(LSMParams param, int num_insert, int num_lookup) {
 			break;
 	}
 
-	if (pair.value != TOMBSTONE)
+	if ((int) pair.value != TOMBSTONE)
 		cout << "validation fails" << endl;
 	else
 

@@ -31,11 +31,12 @@ int main(int argc, char* argv[]) {
 
 	LSMParams param;
 
-	//performanceTest<int, int>(param, 1000, 2000);
+	//performanceTest<int, int>(param, 10000, 10000);
 	//rangeSearchTest<int, int>(param, 1000, 0, 2000);
-	//bloomfilterTest<int, int>(param, 1000);
-	//throughputTest<int, int>(param, 10000);
-	//runsizeTest<int, int>(param, 10000);
+
+	bloomfilterTest<int, int>(param, 1000);
+	throughputTest<int, int>(param, 10000);
+	runsizeTest<int, int>(param, 10000);
 
 	/*
 	int test_num = 10000;
