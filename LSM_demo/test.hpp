@@ -73,7 +73,7 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 	GetSystemTime(&finish);
 	cout << "insert finish" << endl;
 
-	cout << "time cost " << finish.wSecond - start.wSecond << endl;
+	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
 
 	cout << "sequential lookup start" << endl;
 	GetSystemTime(&start);
@@ -90,7 +90,7 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 	GetSystemTime(&finish);
 	cout << "sequential lookup finish" << endl;
 
-	cout << "time cost " << finish.wSecond - start.wSecond << endl;
+	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
 
 
 	// update -> insert same keys with different values
@@ -117,7 +117,7 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 	else
 		cout << "validation succeeds" << ends;
 
-	cout << "time cost " << finish.wSecond - start.wSecond << endl;
+	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
 
 
 	// delete -> delete all values
@@ -145,7 +145,7 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 
 		cout << "validation succeeds" << ends;
 
-	cout << "time cost " << finish.wSecond - start.wSecond << endl;
+	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
 }
 
 template<typename K, typename V>
@@ -168,12 +168,13 @@ void rangeSearchTest(LSM<K, V> lsm, TestParams param) {
 	GetSystemTime(&finish);
 	cout << "insert finish" << endl;
 
-	cout << "time cost " << finish.wSecond - start.wSecond << endl;
+	cout << "time cost " << (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms"<< endl;
 
 	cout << "range search start" << endl;
 	GetSystemTime(&start);
 	vector< Pair<K, V> > search = lsm.range(param.range_min, param.range_max);
 	cout << "range search finish" << endl;
+	GetSystemTime(&finish);
 
 	// check if deleted -> push new data in
 	cout << "validation.." << endl;
@@ -182,11 +183,11 @@ void rangeSearchTest(LSM<K, V> lsm, TestParams param) {
 	}
 
 	/* TODO: size should not change */
-	int return_size;
+	int return_size = (int)(lsm.range(param.range_min, param.range_max)).size();
 	if (return_size != param.range_max - param.range_min)
 		cout << "validation fails" << endl;
 	else
 		cout << "validation succeeds" << ends;
 
-	cout << "time cost " << finish.wSecond - start.wSecond << endl;
+	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
 }

@@ -80,9 +80,6 @@ public:
 	}
 
 	KV_pair* lookup(K key){
-	    if(!doExist){
-            return NULL;
-	    }
 	    int i;
 	    KV_pair *aPair = new KV_pair;
 		if (key >= MIN && key <= MAX) {

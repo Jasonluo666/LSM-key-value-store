@@ -46,12 +46,7 @@ public :
             MAX = kv_pair.key;
         }
         elem_num++;
-
-		// push into disk while full
-		if (elem_num == capacity) {
-			/* merge to disk */
-		}
-    }
+	}
 
     KV_pair* lookup(Key key){
         if (key >= MIN && key <= MAX) {	// skip if out of range
@@ -107,6 +102,8 @@ public :
 
     void clear(){
         elem_num = 0;
+        MIN = 0;
+        MAX = 0;
         KV_pairs.clear();
     }
 

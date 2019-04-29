@@ -11,16 +11,16 @@ int main(int argc, char* argv[]) {
 	cout << "hello world" << endl;
 	LSM<int,int> tree(4096,4096,16,2);
 
-	for(int i = 0; i < 10000; i++){
-        tree.insert(i,i);
-	}
-	for(int i = 0; i < 10000; i+=2){
-        tree.delete_key(i);
-	}
-	for(int i = 0; i < 10000; i++){
-        prints(tree.lookup(i));
-	}
-	prints(tree.range(-500,1500));
+//	for(int i = 0; i < 10000; i++){
+//        tree.insert(i,i);
+//	}
+//	for(int i = 0; i < 10000; i+=2){
+//        tree.delete_key(i);
+//	}
+//	for(int i = 0; i < 10000; i++){
+//        prints(tree.lookup(i));
+//	}
+//	prints(tree.range(-500,1500));
 
 	//for(int i = 0; i < 1024; i++){
  //       tree.insert(i,i);
@@ -65,6 +65,7 @@ int main(int argc, char* argv[]) {
 	cout << "FN" << matrix[1][0] << endl;
 	cout << "TN" << matrix[1][1] << endl;
 	*/
+//	tree.clearfiles();
 
 	system("pause");
 	return 0;
