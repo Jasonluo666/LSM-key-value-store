@@ -9,6 +9,7 @@
 template<typename K, typename V>
 class LSM {
 private:
+    V DELETED = (V) TOMBSTONE;
     typedef Pair<K,V> KV_pair;
     Buffer<K,V>* buff;
     DiskRun<K,V>** runs;
@@ -36,7 +37,7 @@ public:
 				pointer2 += 1;
 			}
 			else {	// equal -> check if it's TOMBSTONE
-				if (new_vec[pointer1].value != TOMBSTONE)
+				if (new_vec[pointer1].value != DELETED)
 					merged.push_back(new_vec[pointer1]);
 
 				pointer1 += 1;
@@ -151,7 +152,7 @@ public:
 	    buff->_delete(aPair);
 	}
 	Pair<K,V> lookup(K key) {
-	    Pair<K,V> _Pair = {key,TOMBSTONE};
+	    Pair<K,V> _Pair = {key,DELETED};
 	    Pair<K,V>* aPair;
 	    Pair<K,V>* result= buff->lookup(key);
 	    if(result == NULL){
@@ -159,7 +160,7 @@ public:
                 if(runs[i]->exist() && filters[i]->contain(key)){
                     aPair = runs[i]->lookup(key);
                     if(aPair != NULL){
-                        if(aPair->value == TOMBSTONE){
+                        if(aPair->value == DELETED){
                             delete aPair;
                             return _Pair;
                         }
@@ -173,7 +174,7 @@ public:
                 }
             }
 	    }
-	    else if(result->value == TOMBSTONE){
+	    else if(result->value == DELETED){
 	        return _Pair;
 	    }
 	    else{

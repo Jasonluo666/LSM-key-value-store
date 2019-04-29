@@ -37,8 +37,6 @@ int main(int argc, char* argv[]) {
 	//throughputTest<int, int>(param, 10000);
 	//runsizeTest<int, int>(param, 10000);
 
-	//prints(tree.range(-500,1500));
-
 	/*
 	int test_num = 10000;
 	BloomFilter<int> filter(test_num, 0.1);
