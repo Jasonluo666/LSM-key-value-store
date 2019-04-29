@@ -80,7 +80,8 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 	GetSystemTime(&finish);
 	cout << "insert finish" << endl;
 
-	cout << "time cost " << finish.wMilliseconds - start.wMilliseconds << endl;
+	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
+
 
 	cout << "sequential lookup start" << endl;
 	GetSystemTime(&start);
@@ -102,7 +103,9 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 	GetSystemTime(&finish);
 	cout << "sequential lookup finish" << endl;
 
-	cout << "time cost " << finish.wMilliseconds - start.wMilliseconds << endl;
+
+	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
+
 
 
 	// update -> insert same keys with different values
@@ -134,7 +137,9 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 	else
 		cout << "validation succeeds" << ends;
 
-	cout << "time cost " << finish.wMilliseconds - start.wMilliseconds << endl;
+
+	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
+
 
 
 	// delete -> delete all values
@@ -167,7 +172,9 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 
 		cout << "validation succeeds" << ends;
 
-	cout << "time cost " << finish.wMilliseconds - start.wMilliseconds << endl;
+
+	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
+
 }
 
 template<typename K, typename V>
@@ -195,7 +202,9 @@ void rangeSearchTest(LSM<K, V> lsm, TestParams param) {
 	GetSystemTime(&finish);
 	cout << "insert finish" << endl;
 
-	cout << "time cost " << finish.wMilliseconds - start.wMilliseconds << endl;
+
+	cout << "time cost " << (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms"<< endl;
+
 
 	cout << "range search start" << endl;
 	GetSystemTime(&start);
@@ -204,11 +213,18 @@ void rangeSearchTest(LSM<K, V> lsm, TestParams param) {
 	GetSystemTime(&finish);
 
 	cout << "validation.." << endl;
-	int return_size = search.size();
+
+	for (int i = 0; i < param.num_insert; i++) {
+		lsm.insert(insert_data[i], i);
+	}
+
+	/* TODO: size should not change */
+	int return_size = (int)(lsm.range(param.range_min, param.range_max)).size();
+
 	if (return_size != param.range_max - param.range_min)
 		cout << "validation fails" << endl;
 	else
 		cout << "validation succeeds" << ends;
 
-	cout << "time cost " << finish.wMilliseconds - start.wMilliseconds << endl;
+	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
 }

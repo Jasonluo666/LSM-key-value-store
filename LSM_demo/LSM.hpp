@@ -181,4 +181,11 @@ public:
 	    }
 	    return _Pair;
 	}
+
+	void clearfiles(){
+	    for(int i = 0; i < max_level; i++){
+            runs[i]->removerun();
+	    }
+	}
+
 };
