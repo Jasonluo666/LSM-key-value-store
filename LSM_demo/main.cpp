@@ -9,7 +9,7 @@ using namespace std;
 int main(int argc, char* argv[]) {
 
 	cout << "hello world" << endl;
-	LSM<int,int> tree(4096 * 1,4096,16,2);
+	//LSM<int,int> tree(4096,4096,16,2, 0.1);
 
 //	for(int i = 0; i < 10000; i++){
 //        tree.insert(i,i);
@@ -29,15 +29,11 @@ int main(int argc, char* argv[]) {
  //       prints(tree.lookup(i));
 	//}
 
-	TestParams param;
-	param.num_insert = 1000;
-	param.num_lookup = 2000;
-	param.range_min = 0;
-	param.range_max = 2000;
-	param.printout_num = 100;
+	LSMParams param;
 
-	rangeSearchTest<int, int>(tree, param);
-	//rangeSearchTest<int, int>(tree, param);
+	//performanceTest<int, int>(param, 1000, 2000);
+	//rangeSearchTest<int, int>(param, 1000, 0, 2000);
+	bloomfilterTest<int, int>(param, 1000);
 	//prints(tree.range(-500,1500));
 
 	/*

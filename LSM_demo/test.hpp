@@ -44,53 +44,104 @@ vector<Pair<int,int> > createvector(int n){
 #include <windows.h>
 using namespace std;
 
-struct TestParams {
-	int num_insert;
-	int num_lookup;
-	int range_min = 0;
-	int range_max = 10000;
+struct LSMParams {
+	int buffer_size = 4096;
+	int page_size = 4096;
+	int max_level = 16;
+	int runs_per_level = 2;
+	double FP_rate = 0.1;
 	int printout_num = 100;
 };
 
 template<typename K, typename V>
-void performanceTest(LSM<K, V> lsm, TestParams param) {
-	//LSM* lsm(param.entry_per_run, param.run_per_level, param.fp_rate, param.pageSize);
+void bloomfilterTest(LSMParams param, int num_insert) {
 
-	SYSTEMTIME start, finish;
+	DWORD start, finish;
+	vector<int> insert_data, lookup_key;
+	std::uniform_int_distribution<int> distribution(INT_MIN + 1, INT_MAX);
+	std::default_random_engine generator;
+
+	// insert uniformly distributed data
+	for (int i = 0; i < num_insert; i++) {
+		insert_data.push_back(distribution(generator));
+		lookup_key.push_back(distribution(generator));
+	}
+
+	for (double fp_rate = 0.0; fp_rate < 1.1; fp_rate += 0.1) {
+		cout << "FP rate: " << fp_rate << " ------------------------------------------------" << endl;
+		LSM<K, V> lsm(param.buffer_size, param.page_size, param.max_level, param.runs_per_level, fp_rate);
+		cout << "insert start" << endl;
+		start = GetTickCount();
+		for (int i = 0; i < num_insert; i++) {
+			if (i % param.printout_num == 0) {
+				finish = GetTickCount();
+				cout << "stage: " << i << " : time cost: " << finish - start << endl;
+			}
+			lsm.insert(insert_data[i], i);
+		}
+		finish = GetTickCount();
+		cout << "insert finish" << endl;
+
+		cout << "time cost " << finish - start << "ms" << endl;
+
+
+		cout << "random lookup start" << endl;
+		start = GetTickCount();
+		Pair<K, V> pair;
+		for (int i = 0; i < num_insert; i++) {
+			if (i % param.printout_num == 0) {
+				finish = GetTickCount();
+				cout << "stage: " << i << " : time cost: " << finish - start << endl;
+			}
+
+			pair = lsm.lookup(lookup_key[i]);
+		}
+		finish = GetTickCount();
+		cout << "sequential lookup finish" << endl;
+
+		lsm.clearfiles();
+	}
+}
+
+template<typename K, typename V>
+void performanceTest(LSMParams param, int num_insert, int num_lookup) {
+	LSM<K, V> lsm(param.buffer_size, param.page_size, param.max_level, param.runs_per_level, param.FP_rate);
+
+	DWORD start, finish;
 	vector<int> insert_data;
 	std::uniform_int_distribution<int> distribution(INT_MIN + 1, INT_MAX);
 	std::default_random_engine generator;
 
 	// insert uniformly distributed data
-	for (int i = 0; i < param.num_insert; i++) {
+	for (int i = 0; i < num_insert; i++) {
 		insert_data.push_back(distribution(generator));
 	}
 
 	cout << "insert start" << endl;
-	GetSystemTime(&start);
-	for (int i = 0; i < param.num_insert; i++) {
+	start = GetTickCount();
+	for (int i = 0; i < num_insert; i++) {
 		if (i % param.printout_num == 0) {
-			GetSystemTime(&finish);
-			cout << "stage: " << i << " : time cost: " << (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << endl;
+			finish = GetTickCount();
+			cout << "stage: " << i << " : time cost: " << finish - start << endl;
 		}
 		lsm.insert(insert_data[i], i);
 	}
-	GetSystemTime(&finish);
+	finish = GetTickCount();
 	cout << "insert finish" << endl;
 
-	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
+	cout << "time cost " <<  finish - start << "ms" << endl;
 
 
 	cout << "sequential lookup start" << endl;
-	GetSystemTime(&start);
+	start = GetTickCount();
 	Pair<K, V> pair;
-	for (int i = 0; i < param.num_lookup; i++) {
+	for (int i = 0; i < num_lookup; i++) {
 		if (i % param.printout_num == 0) {
-			GetSystemTime(&finish);
-			cout << "stage: " << i << " : time cost: " << (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << endl;
+			finish = GetTickCount();
+			cout << "stage: " << i << " : time cost: " << finish - start << endl;
 		}
 
-		if (i < param.num_insert) {
+		if (i < num_insert) {
 			pair = lsm.lookup(insert_data[i]);
 		}
 		//  some random lookup value (test not found cost)
@@ -98,31 +149,31 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 			pair = lsm.lookup(distribution(generator));
 		}
 	}
-	GetSystemTime(&finish);
+	finish = GetTickCount();
 	cout << "sequential lookup finish" << endl;
 
 
-	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
+	cout << "time cost " <<  finish - start << "ms" << endl;
 
 
 
 	// update -> insert same keys with different values
 	cout << "update start" << endl;
-	GetSystemTime(&start);
-	for (int i = 0; i < param.num_insert; i++) {
+	start = GetTickCount();
+	for (int i = 0; i < num_insert; i++) {
 		if (i % param.printout_num == 0) {
-			GetSystemTime(&finish);
-			cout << "stage: " << i << " : time cost: " << (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << endl;
+			finish = GetTickCount();
+			cout << "stage: " << i << " : time cost: " << finish - start << endl;
 		}
 
 		lsm.insert(insert_data[i], -1);
 	}
-	GetSystemTime(&finish);
+	finish = GetTickCount();
 	cout << "insert finish" << endl;
 
 	// check if uodated -> current values are equal to -1
 	cout << "validation.." << endl;
-	for (int i = 0; i < param.num_insert; i++) {
+	for (int i = 0; i < num_insert; i++) {
 		pair = lsm.lookup(insert_data[i]);
 		if (pair.value != -1)
 			break;
@@ -136,33 +187,31 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 		cout << "validation succeeds" << endl;
 
 
-	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
+	cout << "time cost " <<  finish - start << "ms" << endl;
 
 
 
 	// delete -> delete all values
 	cout << "delete start" << endl;
-	GetSystemTime(&start);
-	for (int i = 0; i < param.num_insert; i++) {
+	start = GetTickCount();
+	for (int i = 0; i < num_insert; i++) {
 		if (i % param.printout_num == 0) {
-			GetSystemTime(&finish);
-			cout << "stage: " << i << " : time cost: " << (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << endl;
+			finish = GetTickCount();
+			cout << "stage: " << i << " : time cost: " << finish - start << endl;
 		}
 
 		lsm.delete_key(insert_data[i]);
 	}
-	GetSystemTime(&finish);
+	finish = GetTickCount();
 	cout << "insert finish" << endl;
 
 	// check if deleted -> push new data in
 	cout << "validation.." << endl;
-	for (int i = 0; i < param.num_insert; i++) {
+	for (int i = 0; i < num_insert; i++) {
 		pair = lsm.lookup(insert_data[i]);
 		if (pair.value != TOMBSTONE)
 			break;
 	}
-
-	/* TODO: size should not change */
 
 	if (pair.value != TOMBSTONE)
 		cout << "validation fails" << endl;
@@ -171,58 +220,58 @@ void performanceTest(LSM<K, V> lsm, TestParams param) {
 		cout << "validation succeeds" << endl;
 
 
-	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
+	cout << "time cost " <<  finish - start << "ms" << endl;
 
 }
 
 template<typename K, typename V>
-void rangeSearchTest(LSM<K, V> lsm, TestParams param) {
-	//LSM* lsm(param.entry_per_run, param.run_per_level, param.fp_rate, param.pageSize);
+void rangeSearchTest(LSMParams param, int num_insert, int range_min, int range_max) {
+	LSM<K, V> lsm(param.buffer_size, param.page_size, param.max_level, param.runs_per_level, param.FP_rate);
 
-	SYSTEMTIME start, finish;
+	DWORD start, finish;
 	vector<int> insert_data;
 
 	// insert uniformly distributed data
-	for (int i = param.range_min; i < param.range_max; i++) {
+	for (int i = range_min; i < range_max; i++) {
 		insert_data.push_back(i);
 	}
 
 	cout << "insert start" << endl;
-	GetSystemTime(&start);
-	for (int i = param.range_min; i < param.range_max; i++) {
+	start = GetTickCount();
+	for (int i = range_min; i < range_max; i++) {
 		if (i % param.printout_num == 0) {
-			GetSystemTime(&finish);
-			cout << "stage: " << i << " : time cost: " << (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << endl;
+			finish = GetTickCount();
+			cout << "stage: " << i << " : time cost: " << finish - start << endl;
 		}
 
 		lsm.insert(insert_data[i], i);
 	}
-	GetSystemTime(&finish);
+	finish = GetTickCount();
 	cout << "insert finish" << endl;
 
 
-	cout << "time cost " << (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms"<< endl;
+	cout << "time cost " << finish - start << "ms"<< endl;
 
 
 	cout << "range search start" << endl;
-	GetSystemTime(&start);
-	vector< Pair<K, V> > search = lsm.range(param.range_min, param.range_max);
+	start = GetTickCount();
+	vector< Pair<K, V> > search = lsm.range(range_min, range_max);
 	cout << "range search finish" << endl;
-	GetSystemTime(&finish);
+	finish = GetTickCount();
 
 	cout << "validation.." << endl;
 
-	for (int i = 0; i < param.num_insert; i++) {
+	for (int i = 0; i < num_insert; i++) {
 		lsm.insert(insert_data[i], i);
 	}
 
 	/* TODO: size should not change */
-	int return_size = (int)(lsm.range(param.range_min, param.range_max)).size();
+	int return_size = (int)(lsm.range(range_min, range_max)).size();
 
-	if (return_size != param.range_max - param.range_min)
+	if (return_size != range_max - range_min)
 		cout << "validation fails" << endl;
 	else
 		cout << "validation succeeds" << endl;
 
-	cout << "time cost " <<  (finish.wSecond - start.wSecond) * 1000 + finish.wMilliseconds - start.wMilliseconds << "ms" << endl;
+	cout << "time cost " <<  finish - start << "ms" << endl;
 }

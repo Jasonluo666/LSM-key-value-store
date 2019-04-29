@@ -15,7 +15,10 @@ class BloomFilter {
 	hash<size_t> hash_func2;
 public:
 	BloomFilter(int n_item, double fp_rate) {	// initialize the bloom filter
-		size = (int) -n_item * log(fp_rate) / 0.480453;
+		if ((int)fp_rate < 1)
+			size = (int)-n_item * log(fp_rate) / 0.480453;
+		else
+			size = 0;
 		n_hash = size / n_item * 0.693147;
 
 		filter = vector<bool>(size, false);
