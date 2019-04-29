@@ -78,6 +78,8 @@ public:
             filters[i] = new BloomFilter<K>(run_entries*runs_per_level,FP_rate);
             run_entries *= runs_per_level;
         }
+
+		cout << "Bloom Filter size: " << filters[0]->get_size() << " bits" << endl;
     }
 
 	void insert(K key, V value) {

@@ -14,8 +14,9 @@ class BloomFilter {
 	hash<K> hash_func1;
 	hash<size_t> hash_func2;
 public:
+	int get_size() { return size; }
 	BloomFilter(int n_item, double fp_rate) {	// initialize the bloom filter
-		if ((int)fp_rate < 1)
+		if (fp_rate < 1.0)
 			size = (int)-n_item * log(fp_rate) / 0.480453;
 		else
 			size = 0;
