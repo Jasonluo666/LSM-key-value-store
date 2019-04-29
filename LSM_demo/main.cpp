@@ -34,7 +34,9 @@ int main(int argc, char* argv[]) {
 	//performanceTest<int, int>(param, 1000, 2000);
 	//rangeSearchTest<int, int>(param, 1000, 0, 2000);
 	//bloomfilterTest<int, int>(param, 1000);
-	throughputTest<int, int>(param, 10000);
+	//throughputTest<int, int>(param, 10000);
+	//runsizeTest<int, int>(param, 10000);
+
 	//prints(tree.range(-500,1500));
 
 	/*

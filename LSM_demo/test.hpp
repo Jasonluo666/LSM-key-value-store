@@ -47,11 +47,59 @@ using namespace std;
 struct LSMParams {
 	int buffer_size = 4096;
 	int page_size = 4096;
-	int max_level = 16;
+	int max_level = 8;
 	int runs_per_level = 2;
 	double FP_rate = 0.1;
 	int printout_num = 100;
 };
+
+template<typename K, typename V>
+void runsizeTest(LSMParams param, int num_opr) {
+	DWORD start, finish;
+	vector<int> insert_data, lookup_key;
+	std::uniform_int_distribution<int> distribution(INT_MIN + 1, INT_MAX);
+	std::default_random_engine generator;
+
+	// insert uniformly distributed data
+	for (int i = 0; i < num_opr; i++) {
+		insert_data.push_back(distribution(generator));
+		lookup_key.push_back(distribution(generator));
+	}
+
+	for (int n_page = 1; n_page <= 64; n_page *= 2) {
+		int buffer_size = param.page_size * n_page;
+		cout << "run size (n times of page size): " << n_page << " ------------------------------------------------" << endl;
+		LSM<K, V> lsm(buffer_size, param.page_size, param.max_level, param.runs_per_level, param.FP_rate);
+		cout << "insert start" << endl;
+		start = GetTickCount();
+		for (int i = 0; i < num_opr; i++) {
+			if (i % param.printout_num == 0) {
+				finish = GetTickCount();
+				cout << "stage: " << i << " : time cost: " << finish - start << endl;
+			}
+
+			lsm.insert(insert_data[i], i);
+		}
+		finish = GetTickCount();
+		cout << "insert finish" << endl;
+		cout << "time cost " << finish - start << "ms" << endl;
+
+		cout << "lookup start" << endl;
+		start = GetTickCount();
+		for (int i = 0; i < num_opr; i++) {
+			if (i % param.printout_num == 0) {
+				finish = GetTickCount();
+				cout << "stage: " << i << " : time cost: " << finish - start << endl;
+			}
+
+			lsm.lookup(lookup_key[i]);
+		}
+		cout << "lookup finish" << endl;
+		cout << "time cost " << finish - start << "ms" << endl;
+
+		lsm.clearfiles();
+	}
+}
 
 template<typename K, typename V>
 void throughputTest(LSMParams param, int num_opr){
