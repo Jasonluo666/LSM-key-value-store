@@ -52,6 +52,8 @@ struct TestParams {
 	int printout_num = 100;
 };
 
+
+
 template<typename K, typename V>
 void performanceTest(LSM<K, V> lsm, TestParams param) {
 	//LSM* lsm(param.entry_per_run, param.run_per_level, param.fp_rate, param.pageSize);
