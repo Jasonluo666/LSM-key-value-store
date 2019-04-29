@@ -92,7 +92,7 @@ public:
 			    delete aPair;
 			    return NULL;
 			}
-			vector<KV_pair> KV_pairs(this->load(i));
+			vector<KV_pair> KV_pairs(this->load(i,key));
 			for (i = 0; i < (int)KV_pairs.size(); i++) {
 				if (KV_pairs[i].key == key) {
 					aPair->key = KV_pairs[i].key;
@@ -186,7 +186,7 @@ public:
 	    return kv_pairs;
 	}
 
-	vector<KV_pair> load(int page_i){
+	vector<KV_pair> load(int page_i,K key){
 	    int i;
 	    vector<KV_pair> kv_pairs;
 	    KV_pair aPair;
@@ -196,8 +196,9 @@ public:
 	    }
 	    file.seekg(page_i*page_size,ios::beg);
 	    for(i=page_i*entries_in_page;file.read((char *) &aPair, sizeof(KV_pair));i++){
-	        if(i >= page_i*entries_in_page && i < (page_i+1)*entries_in_page){
+	        if(i >= page_i*entries_in_page && i < (page_i+1)*entries_in_page && aPair.key == key){
 	            kv_pairs.push_back(aPair);
+	            break;
 	        }
 	        if(i >= (page_i+1)*entries_in_page){
                 break;
