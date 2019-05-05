@@ -46,12 +46,24 @@ using namespace std;
 
 struct LSMParams {
 	int buffer_size = 4096;
-	int page_size = 4096;
+	int page_size = 1024;
 	int max_level = 8;
 	int runs_per_level = 2;
 	double FP_rate = 0.1;
 	int printout_num = 100;
 };
+
+template<typename K, typename V>
+void dataPreload(LSM<K, V> lsm, int data_size) {
+	std::uniform_int_distribution<int> distribution(INT_MIN + 1, INT_MAX);
+	std::default_random_engine generator;
+
+	cout << "data preloading.." << endl;
+	for (int i = 0; i < data_size; i++) {
+		lsm.insert(distribution(generator), i);
+	}
+	cout << "preloading finished" << endl;
+}
 
 // # of entries in run -> insert / lookup latency
 template<typename K, typename V>
@@ -71,12 +83,15 @@ void runsizeTest(LSMParams param, int num_opr) {
 		int buffer_size = param.page_size * n_page;
 		cout << "run size (n times of page size): " << n_page << " ------------------------------------------------" << endl;
 		LSM<K, V> lsm(buffer_size, param.page_size, param.max_level, param.runs_per_level, param.FP_rate);
+
+		dataPreload(lsm, 32768);
+
 		cout << "insert start" << endl;
 		start = GetTickCount();
 		for (int i = 0; i < num_opr; i++) {
 			if (i % param.printout_num == 0) {
 				finish = GetTickCount();
-				cout << "stage: " << i << " : time cost: " << finish - start << endl;
+				//cout << "stage: " << i << " : time cost: " << finish - start << endl;
 			}
 
 			lsm.insert(insert_data[i], i);
@@ -90,7 +105,7 @@ void runsizeTest(LSMParams param, int num_opr) {
 		for (int i = 0; i < num_opr; i++) {
 			if (i % param.printout_num == 0) {
 				finish = GetTickCount();
-				cout << "stage: " << i << " : time cost: " << finish - start << endl;
+				//cout << "stage: " << i << " : time cost: " << finish - start << endl;
 			}
 
 			lsm.lookup(lookup_key[i]);
@@ -119,6 +134,9 @@ void throughputTest(LSMParams param, int num_opr){
 	for (double lookup_ratio = 0.1; lookup_ratio < 1.01; lookup_ratio += 0.1) {
 		cout << "lookup ratio: " << lookup_ratio << " ------------------------------------------------" << endl;
 		LSM<K, V> lsm(param.buffer_size, param.page_size, param.max_level, param.runs_per_level, param.FP_rate);
+
+		dataPreload(lsm, 32768);
+
 		cout << "lookup + insert start" << endl;
 		start = GetTickCount();
 		for (int i = 0; i < num_opr; i++) {
@@ -156,15 +174,18 @@ void bloomfilterTest(LSMParams param, int num_insert) {
 		lookup_key.push_back(distribution(generator));
 	}
 
-	for (double fp_rate = 0.1; fp_rate < 1.01; fp_rate += 0.1) {
+	for (double fp_rate = 0.001; fp_rate < 0.0101; fp_rate += 0.001) {
 		cout << "FP rate: " << fp_rate << " ------------------------------------------------" << endl;
 		LSM<K, V> lsm(param.buffer_size, param.page_size, param.max_level, param.runs_per_level, fp_rate);
+
+		dataPreload(lsm, 32768);
+
 		cout << "insert start" << endl;
 		start = GetTickCount();
 		for (int i = 0; i < num_insert; i++) {
 			if (i % param.printout_num == 0) {
 				finish = GetTickCount();
-				cout << "stage: " << i << " : time cost: " << finish - start << endl;
+				//cout << "stage: " << i << " : time cost: " << finish - start << endl;
 			}
 			lsm.insert(insert_data[i], i);
 		}
@@ -180,13 +201,14 @@ void bloomfilterTest(LSMParams param, int num_insert) {
 		for (int i = 0; i < num_insert; i++) {
 			if (i % param.printout_num == 0) {
 				finish = GetTickCount();
-				cout << "stage: " << i << " : time cost: " << finish - start << endl;
+				//cout << "stage: " << i << " : time cost: " << finish - start << endl;
 			}
 
 			pair = lsm.lookup(lookup_key[i]);
 		}
 		finish = GetTickCount();
 		cout << "sequential lookup finish" << endl;
+		cout << "time cost " << finish - start << "ms" << endl;
 
 		lsm.clearfiles();
 	}
@@ -195,6 +217,8 @@ void bloomfilterTest(LSMParams param, int num_insert) {
 template<typename K, typename V>
 void performanceTest(LSMParams param, int num_insert, int num_lookup) {
 	LSM<K, V> lsm(param.buffer_size, param.page_size, param.max_level, param.runs_per_level, param.FP_rate);
+
+	dataPreload(lsm, 32768);
 
 	DWORD start, finish;
 	vector<int> insert_data;
@@ -316,6 +340,8 @@ void performanceTest(LSMParams param, int num_insert, int num_lookup) {
 template<typename K, typename V>
 void rangeSearchTest(LSMParams param, int num_insert, int range_min, int range_max) {
 	LSM<K, V> lsm(param.buffer_size, param.page_size, param.max_level, param.runs_per_level, param.FP_rate);
+
+	dataPreload(lsm, 32768);
 
 	DWORD start, finish;
 	vector<int> insert_data;
