@@ -3,13 +3,31 @@
 #include "vector"
 #include <unordered_map>
 #include <cmath>
+#include <stdio.h>
 
 using namespace std;
+
+class bitmap {
+	char* bits;
+public:
+	bitmap(int size) {
+		bits = (char*)malloc(sizeof(char) * (size / 8 + (!!(size % 8))));
+		memset(bits, 0, sizeof(char) * (size / 8 + (!!(size % 8))));
+	}
+
+	void toggle_bit(int index) {
+		bits[index / 8] ^= 1 << (index % 8);
+	}
+
+	char get_bit(int index) {
+		return 1 & (bits[index / 8] >> (index % 8));
+	}
+};
 
 template<typename K>
 class BloomFilter {
 	int size;
-	vector<bool> filter;
+	bitmap* filter;
 	int n_hash;
 	hash<K> hash_func1;
 	hash<size_t> hash_func2;
@@ -22,7 +40,7 @@ public:
 			size = 0;
 		n_hash = size / n_item * 0.693147;
 
-		filter = vector<bool>(size, false);
+		filter = new bitmap(size);
 		//clearit();
 	}
 
@@ -30,22 +48,21 @@ public:
 		size_t current_hash = hash_func1(key);
 
 		for (int n = 0; n < n_hash; n++) {
-			filter[current_hash % size] = true;
+			filter->toggle_bit(current_hash % size);
 			current_hash = hash_func2(current_hash);
 		}
 	}
 
 	void clearit(){
-	    for(int i = 0; i < size; i++){
-	        filter[i] = false;
-	    }
+		free(filter);
+		filter = new bitmap(size);
 	}
 
 	bool contain(K key) {
 		size_t current_hash = hash_func1(key);
 
 		for (int n = 0; n < n_hash; n++) {
-			if (filter[current_hash % size] != true)
+			if (filter->get_bit(current_hash % size) != true)
 				return false;
 
 			current_hash = hash_func2(current_hash);

@@ -174,7 +174,7 @@ void bloomfilterTest(LSMParams param, int num_insert) {
 		lookup_key.push_back(distribution(generator));
 	}
 
-	for (double fp_rate = 0.001; fp_rate < 0.0101; fp_rate += 0.001) {
+	for (double fp_rate = 0.1; fp_rate < 1.01; fp_rate += 0.1) {
 		cout << "FP rate: " << fp_rate << " ------------------------------------------------" << endl;
 		LSM<K, V> lsm(param.buffer_size, param.page_size, param.max_level, param.runs_per_level, fp_rate);
 
